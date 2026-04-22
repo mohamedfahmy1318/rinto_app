@@ -1,145 +1,278 @@
+<!--
+Sync Impact Report
+==================
+Version change: 1.0.0 → 2.0.0 (MAJOR — all principles redefined incompatibly)
+
+Principles (old → new):
+  I.  Preserve Working Code (NON-NEGOTIABLE)        → I.  Clean Architecture (NON-NEGOTIABLE)
+  II. Layered Feature-based Architecture            → II. Cubit State Management (NON-NEGOTIABLE)
+  III. State Management — Provider Only             → III. Dio-based Networking with Wrapper
+  IV. Naming Conventions (Strict)                   → IV. DRY through Custom Widgets
+  V.  Consistency Over Novelty                      → V.  Simple, Readable, Organized Code
+
+Added sections:
+  - Refactor Direction (replaces "Technology Stack (Locked)")
+  - Folder Structure (Clean Architecture layout)
+
+Removed sections:
+  - "Preserve Working Code" constraint (explicitly revoked — refactor is authorized)
+  - "Provider Only" lock (superseded by Cubit)
+  - "http primary" rule (superseded by Dio wrapper)
+
+Templates requiring updates:
+  - ✅ .specify/memory/constitution.md (this file)
+  - ⚠ pending .specify/templates/plan-template.md — Constitution Check gate
+    is rule-driven and will consume the new principles automatically; no edit
+    needed unless Clean-Arch-specific gates are desired later.
+  - ⚠ pending .specify/templates/spec-template.md — no structural change
+    required; specs remain tech-agnostic.
+  - ⚠ pending .specify/templates/tasks-template.md — no structural change
+    required; task categorization is feature-driven.
+  - ⚠ pending CLAUDE.md / README.md — runtime guidance docs still reference
+    the prior stack; update when next touched.
+
+Deferred TODOs:
+  - TODO(ratification_date_review): original constitution v1.0.0 was ratified
+    2026-04-21 — retained as the adoption date.
+-->
+
 # Rento Go Constitution
+
 <!-- Project: rento_go (Flutter mobile app, pubspec v1.1.0+19) -->
-<!-- Derived from existing codebase — preserves current architecture. -->
+<!-- Refactor-phase constitution. Authorizes and governs a full migration
+     away from the prior Provider/http layered architecture. -->
 
 ## Core Principles
 
-### I. Preserve Working Code (NON-NEGOTIABLE)
-Do NOT modify, refactor, rename, or "clean up" any code that is already working.
-Changes to existing, working code are permitted ONLY when the user explicitly
-requests an improvement, fix, or refactor of that specific code. This applies
-equally to files in `lib/`, `admin/`, `deploy/`, and SQL schemas at the repo
-root. New features must be added alongside existing code without rewriting it.
+### I. Clean Architecture (NON-NEGOTIABLE)
 
-### II. Layered Feature-based Architecture
-The app follows a layered structure under `lib/`. Every new code unit MUST be
-placed in the layer matching its responsibility:
+All Dart code under `lib/` MUST be organized into three explicit layers with
+strict, one-way dependencies: **Presentation → Domain → Data**. Domain is the
+center and depends on nothing; Presentation depends on Domain (and on Cubits
+that consume use cases); Data implements Domain-defined contracts.
 
-- `lib/core/` — cross-cutting concerns only: `constants/`, `theme/`,
-  `localization/`. No feature logic here.
-- `lib/models/` — plain Dart data classes with `fromJson` / `toJson`
-  (see `listing_model.dart`, `user_model.dart`). No UI, no network calls.
-- `lib/providers/` — state holders extending `ChangeNotifier`
-  (see `app_provider.dart`, `auth_provider.dart`). Providers orchestrate
-  services and expose state to the UI; they do NOT contain widgets.
-- `lib/services/` — external integrations: REST (`api_service.dart`),
-  Firebase/FCM, IAP (Apple/Google), chat, realtime. Services are stateless
-  helpers (static methods or instance classes) and do NOT hold UI state.
-- `lib/screens/` — UI. Organized by feature folder
-  (`auth/`, `home/`, `listing_details/`, `my_listings/`, `chat/`, `checkout/`,
-  `profile/`, `packages/`, `search/`, `notifications/`, `favorites/`,
-  `add_listing/`, `edit_listing/`, `banner_details/`). Shared presentational
-  widgets live in `lib/screens/widgets/`.
+- **Data layer** (`lib/data/`): `models/` (DTOs with `fromJson`/`toJson`),
+  `datasources/` (remote via Dio, local via SharedPreferences /
+  SecureStorage), `repositories/` (concrete implementations of Domain
+  repository interfaces). Data MUST NOT import from Presentation.
+- **Domain layer** (`lib/domain/`): `entities/` (pure Dart, framework-free),
+  `repositories/` (abstract interfaces), `usecases/` (single-responsibility
+  callable classes). Domain MUST NOT import Flutter, Dio, Bloc, or any
+  framework/package other than `dart:core` and `equatable`/`dartz`-class
+  helpers if adopted.
+- **Presentation layer** (`lib/presentation/`): `cubits/` (state + Cubit
+  classes), `pages/` (screens, one folder per feature), `widgets/` (shared
+  and feature-scoped custom widgets). Presentation MUST NOT call data
+  sources or repositories directly — it goes through use cases exposed via
+  Cubits.
 
-New features create a new folder under `lib/screens/<feature>/` plus a
-matching provider/service/model only when needed. Do NOT introduce parallel
-top-level directories (no `lib/features/`, `lib/bloc/`, `lib/controllers/`,
-`lib/repositories/`, etc.).
+Cross-layer wiring (dependency injection) lives in `lib/core/di/`. Shared
+utilities (errors, constants, theme, localization, network client setup)
+live in `lib/core/`. Any code that violates the dependency direction is a
+constitutional violation and MUST be rejected in review.
 
-### III. State Management — Provider Only
-The single approved state management solution is `provider: ^6.1.1` with the
-`ChangeNotifier` pattern, registered through `MultiProvider` in
-[lib/main.dart](lib/main.dart).
+**Rationale**: isolates business rules from UI and I/O, makes each layer
+independently testable, and enables safe replacement of Dio/Bloc/etc. in the
+future without rewriting domain logic.
 
-- New global state MUST be a `ChangeNotifier` added to that `MultiProvider`.
-- Screens consume state via `Consumer<T>`, `context.watch<T>()`, or
-  `context.read<T>()` — consistent with existing usage.
-- Do NOT introduce Riverpod, BLoC, GetX, Redux, MobX, InheritedWidget
-  subclasses, or any other state library. Local ephemeral UI state uses
-  `StatefulWidget` (as today).
-- Persisted preferences go through `SharedPreferences` with keys defined in
-  `StorageKeys` (`lib/core/constants/app_constants.dart`). Sensitive values
-  use `flutter_secure_storage`.
+### II. Cubit State Management (NON-NEGOTIABLE)
 
-### IV. Naming Conventions (Strict)
-File and symbol naming mirrors the existing codebase exactly:
+State MUST be managed with `flutter_bloc`'s **Cubit** API (not `Bloc`,
+unless a feature provably needs event streams — in which case the migration
+to `Bloc` requires explicit approval). Cubits MUST:
 
-- Files: `snake_case.dart`.
-- Suffix by layer (required):
-  - Models → `*_model.dart` with class `XxxModel`
-  - Providers → `*_provider.dart` with class `XxxProvider extends ChangeNotifier`
-  - Services → `*_service.dart` with class `XxxService`
-  - Screens → `*_screen.dart` with class `XxxScreen`
-  - Reusable widgets → descriptive `snake_case.dart` (e.g.
-    `listing_card.dart`, `search_bar_widget.dart`)
-- Classes: `PascalCase`. Methods/variables: `camelCase`. Private members
-  prefixed with `_`.
-- Constants grouped in classes inside `lib/core/constants/app_constants.dart`
-  (e.g. `AppConstants.baseUrl`, `StorageKeys.token`). Do NOT scatter raw
-  string literals for endpoints, storage keys, or config.
-- API endpoint strings follow the existing pattern (relative path, no leading
-  slash — e.g. `'auth/register'`, `'users/update'`).
+- Live under `lib/presentation/cubits/<feature>/` as a pair:
+  `<feature>_cubit.dart` and `<feature>_state.dart`.
+- Expose immutable state classes (sealed classes or `Equatable`
+  subclasses — pick one and stay consistent). No mutable fields on state.
+- Receive their dependencies (use cases) through the constructor. No
+  service locators called inside methods.
+- Be provided via `BlocProvider` at the nearest sensible scope — global
+  cubits at app root (`MultiBlocProvider` in `main.dart`), feature cubits
+  scoped to the feature's route.
 
-### V. Consistency Over Novelty
-When adding code, match the style, idioms, and patterns already present in
-sibling files. Examples:
+UI MUST consume state via `BlocBuilder`, `BlocListener`, `BlocConsumer`, or
+`context.read<T>()` / `context.watch<T>()`. **`provider` and `ChangeNotifier`
+MUST NOT be used for new code** and MUST be removed from migrated features.
+Local ephemeral UI state (scroll controllers, form controllers, animation
+state) stays in `StatefulWidget`.
 
-- Network calls go through `ApiService.get/post/put/delete` returning
-  `ApiResponse`. Do NOT call `http` or `dio` directly from providers/screens.
-- Localization strings go through `AppLocalizations`; the app supports `ar`,
-  `he`, `en` with RTL handling in [lib/main.dart](lib/main.dart). Every
-  user-facing string MUST be localized in all three locales.
-- Theming uses `AppTheme.lightTheme` / `AppTheme.darkTheme` and colors from
-  `AppColors`. Do NOT hardcode colors or text styles in widgets.
-- Navigation uses `go_router` v13 (already in `pubspec.yaml`); do not add
-  a second router.
+**Rationale**: Cubit gives predictable, testable state with a minimal API,
+trivial to unit-test in isolation, and aligns with the Clean Architecture
+dependency rule (Cubits live in Presentation and call use cases).
 
-## Technology Stack (Locked)
+### III. Dio-based Networking with Wrapper
 
-Changing the stack is a constitutional amendment, not a routine change.
+All HTTP traffic MUST go through a single Dio client wrapper. Direct use of
+`package:http` is forbidden in new code and MUST be removed from migrated
+features.
 
-- Flutter / Dart SDK `^3.8.1`.
-- State: `provider ^6.1.1`.
-- Routing: `go_router ^13.0.0`.
-- Network: `http ^1.2.0` (primary via `ApiService`), `dio ^5.4.0`
-  (special cases only).
-- Storage: `shared_preferences ^2.2.2`, `flutter_secure_storage ^9.0.0`.
-- Firebase: `firebase_core ^2.25.4`, `firebase_messaging ^14.7.15`,
-  `flutter_local_notifications ^17.0.0` — initialized in
-  [lib/main.dart](lib/main.dart) with `kIsWeb` / `Platform.isAndroid` guards
-  (do not remove those guards).
-- IAP: `in_app_purchase ^3.1.13` via `apple_iap_service.dart` /
-  `google_iap_service.dart`.
-- Forms: `flutter_form_builder ^10.1.0` + `form_builder_validators ^11.0.0`.
-- Platforms supported: Android + iOS. Web is guarded, not targeted.
+- The wrapper lives at `lib/core/network/api_client.dart` (or equivalent)
+  and MUST centralize:
+  - **BaseOptions**: `baseUrl`, `connectTimeout`, `receiveTimeout`,
+    `sendTimeout`, default `headers` (`Content-Type`, `Accept`).
+  - **Interceptors** (required):
+    - `AuthInterceptor` — injects `Authorization: Bearer <token>` from
+      secure storage; triggers refresh or logout on 401.
+    - `LoggerInterceptor` — debug-only request/response logging
+      (gated by `kDebugMode`, never in release).
+    - `ErrorInterceptor` — maps `DioException` to typed `Failure` objects
+      defined in `lib/core/error/`.
+    - `LanguageInterceptor` — injects the active locale header so the
+      server returns the correct `ar` / `he` / `en` response.
+- Data sources MUST depend on the wrapper, not on raw `Dio`. The raw Dio
+  instance is instantiated once in `lib/core/di/` and is not exported.
+- Repository implementations MUST catch `DioException` (or its mapped
+  `Failure`) and return a typed result (`Either<Failure, T>` or an explicit
+  sealed `Result` type — decide once per the refactor plan).
+- Timeouts, retry policy, and cache policy are configured on the wrapper,
+  not duplicated at call sites.
 
-New dependencies require explicit user approval and a justification that no
-existing dependency already covers the need.
+**Rationale**: one place to change for auth/logging/retries, uniform error
+handling, and a clean seam to mock the network in tests.
+
+### IV. DRY through Custom Widgets
+
+Repeated UI patterns MUST be extracted into reusable custom widgets. A
+pattern is "repeated" once it appears in **two** places — on the third, a
+custom widget is mandatory, not optional.
+
+- Shared widgets live in `lib/presentation/widgets/` (app-wide) or
+  `lib/presentation/pages/<feature>/widgets/` (feature-scoped).
+- Custom widgets MUST be:
+  - **Configurable** via parameters, not forked per caller.
+  - **Stateless where possible**; use `StatefulWidget` only for widgets
+    that own genuine local state.
+  - **Theme-driven** — read from `Theme.of(context)` and app color/text
+    tokens; never hardcode colors, sizes, paddings, or text styles inline
+    in a screen.
+- Primitive building blocks MUST exist and be used: `AppButton`,
+  `AppTextField`, `AppAppBar`, `AppLoader`, `AppErrorView`, `AppEmptyView`,
+  `AppImage`/`CachedImage`. Screens compose these — they do not re-derive
+  them.
+- **No copy-paste UI.** A pull request that duplicates a widget block
+  already present elsewhere MUST either reuse the existing widget or
+  extract a new one in the same PR.
+
+**Rationale**: DRY reduces visual drift across the app, shrinks PR
+diffs during design changes, and keeps screens readable as composition
+rather than markup.
+
+### V. Simple, Readable, Organized Code
+
+Every file, class, and function MUST be written for the next reader.
+
+- **Simplicity**: prefer the smallest solution that works. No premature
+  abstraction, no "in case we need it later" parameters, no speculative
+  generality. If a feature works with one class, do not split it into
+  three.
+- **Readability**:
+  - Naming: intent-revealing. Methods are verbs (`fetchListings`,
+    `toggleFavorite`); booleans are questions (`isLoading`, `hasError`);
+    classes are nouns (`ListingCubit`, `AuthRepository`).
+  - File names: `snake_case.dart`. Class names: `PascalCase`. Methods,
+    fields: `camelCase`. Private members: leading `_`.
+  - Suffix by role (required): `*_model.dart` (Data DTOs),
+    `*_entity.dart` (Domain entities), `*_repository.dart` (Domain
+    interfaces) + `*_repository_impl.dart` (Data impls),
+    `*_usecase.dart`, `*_cubit.dart`, `*_state.dart`, `*_page.dart`,
+    `*_widget.dart`, `*_datasource.dart`.
+  - Functions do one thing; target ≤ 40 lines. Files target ≤ 300 lines.
+    Exceeding these is a smell that triggers extraction — not a hard ban,
+    but requires a note in review.
+- **Organization**:
+  - No mixed layers in one file. No UI code in Data. No Dio imports in
+    Domain. No business logic in widgets.
+  - Imports ordered: `dart:*` → `package:*` → relative. Use
+    `flutter_lints` (already in `pubspec.yaml`) plus stricter rules added
+    to `analysis_options.yaml` (unused imports, prefer_const_constructors,
+    prefer_final_locals, always_declare_return_types).
+  - Constants centralized (`lib/core/constants/`); raw string literals for
+    endpoints, storage keys, or config are forbidden.
+  - Localization: every user-facing string lives in the ARB-based
+    `AppLocalizations` with `ar`, `he`, `en` entries added together.
+- **Comments**: default to none. Write a short comment ONLY when the *why*
+  is non-obvious (a workaround, an invariant, a known edge case). Do not
+  describe *what* the code already shows.
+
+**Rationale**: simple code survives refactors; readable code ships faster;
+organized code makes the Clean Architecture boundaries self-enforcing.
+
+## Refactor Direction
+
+This constitution authorizes an ongoing, **incremental** refactor of the
+existing `rento_go` codebase toward the target architecture above. The old
+structure under `lib/{core,models,providers,screens,services}` is being
+superseded by `lib/{core,data,domain,presentation}`.
+
+- **Target stack (locked during refactor)**:
+  - State: `flutter_bloc` (Cubit).
+  - Network: `dio` + typed wrapper + interceptors.
+  - Error modelling: sealed `Failure` types under `lib/core/error/`
+    (adopting `dartz`'s `Either` or an explicit `Result` — pick once,
+    use everywhere).
+  - DI: `get_it` (or injected manually through constructors + a
+    composition root in `lib/core/di/`). Choose one; do not mix.
+  - Routing: `go_router` (already in `pubspec.yaml`) — retained.
+  - Storage: `shared_preferences` + `flutter_secure_storage` — retained,
+    accessed only from Data layer data sources.
+  - Firebase / FCM / IAP / forms / localization packages retained as in
+    `pubspec.yaml`.
+- **Removed / migrated away from**:
+  - `provider: ^6.1.1` — removed once every `ChangeNotifier` is replaced.
+  - `http: ^1.2.0` — removed once every `ApiService` call is ported to
+    the Dio wrapper.
+- **Migration rule**: a feature is "migrated" only when its Cubit, use
+  cases, repository (interface + impl), data sources, and pages all live
+  under the new layout and the legacy files are deleted — not when they
+  coexist. No feature may permanently straddle both architectures.
 
 ## Development Workflow
 
-1. **Read before writing.** Before touching any file, read it and its
-   siblings to confirm the pattern. Reuse existing helpers
-   (`ApiService`, `StorageKeys`, `AppColors`, `AppLocalizations`).
-2. **Add, don't alter.** New features land as new files in the correct
-   layer. Touch existing files only when the user asks, or when integration
-   is unavoidable (e.g. registering a new provider in `MultiProvider`, or
-   adding a new locale key).
-3. **Match the three locales.** Any new user-facing string is added to
-   `ar`, `he`, and `en` together — never commit a string in only one locale.
-4. **Respect RTL.** New UI must render correctly under `TextDirection.rtl`
-   (Arabic/Hebrew) and `ltr` (English) using the existing `Directionality`
-   wrapper from [lib/main.dart:77-80](lib/main.dart#L77-L80).
-5. **Scope discipline.** Do not rename variables, reformat files, tidy
-   imports, or "modernize" code in files unrelated to the task. Drive-by
-   edits are prohibited.
+1. **Plan before code.** For each feature or migration slice, identify the
+   entities, use cases, repository interface, data sources, Cubit, and
+   pages. A PR that adds UI without the supporting layers MUST be split.
+2. **Build from Domain outward.** Entities and use cases first (with
+   tests where applicable), then Data implementations, then the Cubit,
+   then the Page/Widgets. This order guarantees the dependency direction.
+3. **Lint is a gate.** Treat `flutter analyze` warnings as errors in
+   review. Add stricter lints to `analysis_options.yaml` as the refactor
+   progresses.
+4. **Three-locale discipline.** Any new user-facing string is added to
+   `ar`, `he`, and `en` in the same PR. RTL layout must render correctly
+   under both Arabic and Hebrew.
+5. **No drive-by edits.** Refactor only the files in scope for the current
+   task. Unrelated formatting, renames, or "cleanups" are rejected.
+6. **Delete as you go.** When a feature is migrated, delete the legacy
+   provider/service/screen files. Do not leave dead code "for reference."
 
 ## Governance
 
-This constitution supersedes personal preference and general "best practice"
-advice when they conflict. Any proposed change to:
+This constitution supersedes personal preference and any prior guidance
+(including v1.0.0 of this document). Any change to:
 
-- the architectural layers (`core/models/providers/services/screens`),
-- the state management library,
-- the naming conventions, or
-- the locked technology stack
+- the three-layer Clean Architecture split,
+- the choice of Cubit for state,
+- the Dio-wrapper rule,
+- the DRY / custom-widget requirement,
+- the simple/readable/organized baseline,
 
-is an **amendment** and requires explicit user approval before implementation.
-Routine feature work under these rules does not need approval beyond the
-normal task request.
+is an **amendment** requiring explicit user approval and a version bump
+below.
 
-When a task seems to require breaking one of these principles, stop and ask
-the user before proceeding. If in doubt about an architectural placement,
-prefer the pattern used by the closest existing sibling file.
+**Versioning policy (semantic)**:
+- **MAJOR**: a principle is removed, redefined incompatibly, or the stack
+  is changed in a way that invalidates in-flight work.
+- **MINOR**: a new principle or section is added; an existing principle is
+  materially expanded.
+- **PATCH**: wording, clarification, typo, or non-semantic refinement.
 
-**Version**: 1.0.0 | **Ratified**: 2026-04-21 | **Last Amended**: 2026-04-21
+**Compliance review**:
+- Every PR description MUST declare which principles apply and how they
+  are upheld (a one-line note is sufficient).
+- Reviewers MUST reject PRs that violate principles I–V without a written
+  justification in the PR body; unjustified violations are not merged.
+- Ambiguous cases are resolved in favour of the pattern already used by
+  the most recently migrated feature.
+
+**Version**: 2.0.0 | **Ratified**: 2026-04-21 | **Last Amended**: 2026-04-22
