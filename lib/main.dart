@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+import 'core/di/service_locator.dart';
 import 'core/theme/app_theme.dart';
 import 'core/localization/app_localizations.dart';
 import 'providers/app_provider.dart';
@@ -20,6 +21,8 @@ void main() async {
   FlutterError.onError = (details) {
     FlutterError.presentError(details);
   };
+
+  await setupLocator();
 
   // Initialize Firebase only on mobile platforms (not web)
   if (!kIsWeb) {

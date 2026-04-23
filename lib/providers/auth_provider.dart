@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants/app_constants.dart';
+import '../core/di/service_locator.dart';
+import '../core/storage/token_reader.dart';
 import '../models/user_model.dart';
 import '../services/api_service.dart';
 import '../services/fcm_service.dart';
@@ -181,6 +183,9 @@ class AuthProvider extends ChangeNotifier {
     _token = data['token'];
     _user = UserModel.fromJson(data['user']);
     ApiService.setToken(_token);
+    if (getIt.isRegistered<TokenReader>()) {
+      getIt<TokenReader>().setToken(_token);
+    }
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(StorageKeys.token, _token!);
@@ -218,6 +223,9 @@ class AuthProvider extends ChangeNotifier {
     _user = null;
     _token = null;
     ApiService.setToken(null);
+    if (getIt.isRegistered<TokenReader>()) {
+      getIt<TokenReader>().clear();
+    }
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(StorageKeys.token);

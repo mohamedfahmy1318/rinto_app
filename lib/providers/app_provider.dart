@@ -2,6 +2,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants/app_constants.dart';
+import '../core/di/service_locator.dart';
+import '../core/storage/locale_reader.dart';
 import '../services/api_service.dart';
 
 class AppProvider extends ChangeNotifier {
@@ -84,6 +86,9 @@ class AppProvider extends ChangeNotifier {
     _locale = locale;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(StorageKeys.language, locale.languageCode);
+    if (getIt.isRegistered<LocaleReader>()) {
+      getIt<LocaleReader>().setLanguageCode(locale.languageCode);
+    }
     notifyListeners();
 
     // Sync language to server for push notifications

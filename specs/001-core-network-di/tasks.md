@@ -36,9 +36,9 @@ are created with `.gitkeep` for the first migrated feature to use.
 **Purpose**: Add the one new dependency and tighten lints before any
 production code is written.
 
-- [ ] T001 Add `get_it: ^7.7.0` to `dependencies` in [pubspec.yaml](../../pubspec.yaml) and run `flutter pub get`
-- [ ] T002 [P] Tighten lints in [analysis_options.yaml](../../analysis_options.yaml) per research § R-012 (add `prefer_const_constructors`, `prefer_final_locals`, `always_declare_return_types`, `unnecessary_lambdas`, `avoid_dynamic_calls`, `require_trailing_commas`)
-- [ ] T003 [P] Create empty layer directories with `.gitkeep` files: `lib/data/.gitkeep`, `lib/domain/.gitkeep`, `lib/presentation/.gitkeep` (so the Clean-Architecture target layout is present for the first migrated feature)
+- [X] T001 Add `get_it: ^7.7.0` to `dependencies` in [pubspec.yaml](../../pubspec.yaml) and run `flutter pub get`
+- [X] T002 [P] Tighten lints in [analysis_options.yaml](../../analysis_options.yaml) per research § R-012 (add `prefer_const_constructors`, `prefer_final_locals`, `always_declare_return_types`, `unnecessary_lambdas`, `avoid_dynamic_calls`, `require_trailing_commas`)
+- [X] T003 [P] Create empty layer directories with `.gitkeep` files: `lib/data/.gitkeep`, `lib/domain/.gitkeep`, `lib/presentation/.gitkeep` (so the Clean-Architecture target layout is present for the first migrated feature)
 
 ---
 
@@ -50,13 +50,13 @@ locator skeleton, and the `main.dart` boot wiring.
 
 **⚠️ CRITICAL**: No user story may begin until this phase is complete.
 
-- [ ] T004 [P] Create `NetworkConfig` (immutable const holder for baseUrl / 3 timeouts / default JSON headers) in `lib/core/network/network_config.dart`, reading `AppConstants.baseUrl` from [lib/core/constants/app_constants.dart](../../lib/core/constants/app_constants.dart); see data-model § 1
-- [ ] T005 [P] Create `TokenReader` abstract class + `SharedPreferencesTokenReader` impl (sync `currentToken`, async `refreshFromStorage`, sync `setToken`, `clear`) backed by `StorageKeys.token` in `lib/core/storage/token_reader.dart`; see data-model § 2 and research § R-005
-- [ ] T006 [P] Create `LocaleReader` abstract class + `SharedPreferencesLocaleReader` impl (sync `currentLanguageCode` defaulting to `'ar'`, async `refreshFromStorage`, sync `setLanguageCode`) backed by `StorageKeys.language` in `lib/core/storage/locale_reader.dart`; see data-model § 3 and research § R-006
-- [ ] T007 [P] Create sealed `Failure` hierarchy stub (`Failure` + `NetworkFailure`, `ServerFailure`, `UnexpectedFailure`) in `lib/core/error/failure.dart`; only `UnexpectedFailure` is instantiated in v1; see data-model § 6 and research § R-007
-- [ ] T008 Create `getIt` accessor + `setupLocator()` skeleton in `lib/core/di/service_locator.dart` — idempotency guard (`if (getIt.isRegistered<Dio>()) return;`), register `TokenReader` and `LocaleReader` as singletons, call `refreshFromStorage()` on both, expose `resetLocator()` for tests; see contracts/service_locator.contract.md § 2. **Does not yet register Dio** — US1 adds that
-- [ ] T009 Wire `await setupLocator();` into [lib/main.dart](../../lib/main.dart) immediately after `WidgetsFlutterBinding.ensureInitialized()` and before the Firebase block, per contracts/service_locator.contract.md § 3
-- [ ] T010 [P] Unit test: `setupLocator()` registers `TokenReader` and `LocaleReader`; second call is a no-op; `resetLocator()` followed by `setupLocator()` re-registers cleanly — in `test/core/di/service_locator_test.dart`
+- [X] T004 [P] Create `NetworkConfig` (immutable const holder for baseUrl / 3 timeouts / default JSON headers) in `lib/core/network/network_config.dart`, reading `AppConstants.baseUrl` from [lib/core/constants/app_constants.dart](../../lib/core/constants/app_constants.dart); see data-model § 1
+- [X] T005 [P] Create `TokenReader` abstract class + `SharedPreferencesTokenReader` impl (sync `currentToken`, async `refreshFromStorage`, sync `setToken`, `clear`) backed by `StorageKeys.token` in `lib/core/storage/token_reader.dart`; see data-model § 2 and research § R-005
+- [X] T006 [P] Create `LocaleReader` abstract class + `SharedPreferencesLocaleReader` impl (sync `currentLanguageCode` defaulting to `'ar'`, async `refreshFromStorage`, sync `setLanguageCode`) backed by `StorageKeys.language` in `lib/core/storage/locale_reader.dart`; see data-model § 3 and research § R-006
+- [X] T007 [P] Create sealed `Failure` hierarchy stub (`Failure` + `NetworkFailure`, `ServerFailure`, `UnexpectedFailure`) in `lib/core/error/failure.dart`; only `UnexpectedFailure` is instantiated in v1; see data-model § 6 and research § R-007
+- [X] T008 Create `getIt` accessor + `setupLocator()` skeleton in `lib/core/di/service_locator.dart` — idempotency guard (`if (getIt.isRegistered<Dio>()) return;`), register `TokenReader` and `LocaleReader` as singletons, call `refreshFromStorage()` on both, expose `resetLocator()` for tests; see contracts/service_locator.contract.md § 2. **Does not yet register Dio** — US1 adds that
+- [X] T009 Wire `await setupLocator();` into [lib/main.dart](../../lib/main.dart) immediately after `WidgetsFlutterBinding.ensureInitialized()` and before the Firebase block, per contracts/service_locator.contract.md § 3
+- [X] T010 [P] Unit test: `setupLocator()` registers `TokenReader` and `LocaleReader`; second call is a no-op; `resetLocator()` followed by `setupLocator()` re-registers cleanly — in `test/core/di/service_locator_test.dart`
 
 **Checkpoint**: Foundation ready. All readers are populated at app boot; the
 service locator is safe to resolve against. No network client yet.
@@ -77,13 +77,13 @@ No crash; no additional per-call config code.
 
 ### Tests for User Story 1
 
-- [ ] T011 [P] [US1] Unit test: `ApiClient.create(...)` returns a `Dio` whose `options.baseUrl`, `options.connectTimeout`, `options.receiveTimeout`, `options.sendTimeout`, and `options.headers` equal the values from `NetworkConfig` — in `test/core/network/api_client_test.dart`
-- [ ] T012 [P] [US1] Unit test: two consecutive `getIt<Dio>()` resolutions return the identical instance (lazy-singleton semantics) — extend `test/core/di/service_locator_test.dart`
+- [X] T011 [P] [US1] Unit test: `ApiClient.create(...)` returns a `Dio` whose `options.baseUrl`, `options.connectTimeout`, `options.receiveTimeout`, `options.sendTimeout`, and `options.headers` equal the values from `NetworkConfig` — in `test/core/network/api_client_test.dart`
+- [X] T012 [P] [US1] Unit test: two consecutive `getIt<Dio>()` resolutions return the identical instance (lazy-singleton semantics) — extend `test/core/di/service_locator_test.dart`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Create `ApiClient.create({tokenReader, localeReader})` factory that returns a `Dio` wired with `NetworkConfig` `BaseOptions` and an **empty** `Interceptors` list — in `lib/core/network/api_client.dart`; see contracts/api_client.contract.md § 1–2
-- [ ] T014 [US1] Register `Dio` as `registerLazySingleton<Dio>` in [lib/core/di/service_locator.dart](../../lib/core/di/service_locator.dart) using `ApiClient.create(tokenReader: getIt(), localeReader: getIt())`; depends on T008 and T013
+- [X] T013 [P] [US1] Create `ApiClient.create({tokenReader, localeReader})` factory that returns a `Dio` wired with `NetworkConfig` `BaseOptions` and an **empty** `Interceptors` list — in `lib/core/network/api_client.dart`; see contracts/api_client.contract.md § 1–2
+- [X] T014 [US1] Register `Dio` as `registerLazySingleton<Dio>` in [lib/core/di/service_locator.dart](../../lib/core/di/service_locator.dart) using `ApiClient.create(tokenReader: getIt(), localeReader: getIt())`; depends on T008 and T013
 
 **Checkpoint**: `getIt<Dio>()` works end-to-end. Client sends real requests
 with correct base URL + timeouts. No auth, logging, or language yet —
@@ -105,13 +105,13 @@ out and confirm the next request carries no such header.
 
 ### Tests for User Story 2
 
-- [ ] T015 [P] [US2] Unit test: `AuthInterceptor` attaches header when `tokenReader.currentToken` is a non-empty string; attaches no header when `null`; attaches no header when empty string — using a fake `TokenReader`, in `test/core/network/interceptors/auth_interceptor_test.dart`
+- [X] T015 [P] [US2] Unit test: `AuthInterceptor` attaches header when `tokenReader.currentToken` is a non-empty string; attaches no header when `null`; attaches no header when empty string — using a fake `TokenReader`, in `test/core/network/interceptors/auth_interceptor_test.dart`
 
 ### Implementation for User Story 2
 
-- [ ] T016 [P] [US2] Create `AuthInterceptor` that reads `TokenReader.currentToken` synchronously and conditionally injects `Authorization: Bearer <token>` into outbound requests — in `lib/core/network/interceptors/auth_interceptor.dart`; see data-model § 5 and research § R-005
-- [ ] T017 [US2] Insert `AuthInterceptor(getIt<TokenReader>())` as pipeline position **#0** (first) in [lib/core/network/api_client.dart](../../lib/core/network/api_client.dart); depends on T013 and T016
-- [ ] T018 [US2] Guarded one-liner edits in [lib/providers/auth_provider.dart](../../lib/providers/auth_provider.dart): on successful login call `getIt<TokenReader>().setToken(_token);` wrapped in `if (getIt.isRegistered<TokenReader>())`; in `logout()` call `getIt<TokenReader>().clear();` with the same guard; see contracts/service_locator.contract.md § 5 (NOTE: this is the **only** legacy-auth-provider edit this feature makes)
+- [X] T016 [P] [US2] Create `AuthInterceptor` that reads `TokenReader.currentToken` synchronously and conditionally injects `Authorization: Bearer <token>` into outbound requests — in `lib/core/network/interceptors/auth_interceptor.dart`; see data-model § 5 and research § R-005
+- [X] T017 [US2] Insert `AuthInterceptor(getIt<TokenReader>())` as pipeline position **#0** (first) in [lib/core/network/api_client.dart](../../lib/core/network/api_client.dart); depends on T013 and T016
+- [X] T018 [US2] Guarded one-liner edits in [lib/providers/auth_provider.dart](../../lib/providers/auth_provider.dart): on successful login call `getIt<TokenReader>().setToken(_token);` wrapped in `if (getIt.isRegistered<TokenReader>())`; in `logout()` call `getIt<TokenReader>().clear();` with the same guard; see contracts/service_locator.contract.md § 5 (NOTE: this is the **only** legacy-auth-provider edit this feature makes)
 
 **Checkpoint**: Authenticated requests work. US1 + US2 together cover the
 authenticated-feature path.
@@ -131,12 +131,12 @@ payload lines appear.
 
 ### Tests for User Story 3
 
-- [ ] T019 [P] [US3] Unit test: `LoggingInterceptor` in a `kDebugMode`-true harness writes a request line and a response line; the `Authorization` header value is rendered as `Bearer ***` (never the raw token) — in `test/core/network/interceptors/logging_interceptor_test.dart`
+- [X] T019 [P] [US3] Unit test: `LoggingInterceptor` in a `kDebugMode`-true harness writes a request line and a response line; the `Authorization` header value is rendered as `Bearer ***` (never the raw token) — in `test/core/network/interceptors/logging_interceptor_test.dart`
 
 ### Implementation for User Story 3
 
-- [ ] T020 [P] [US3] Create `LoggingInterceptor` with `kDebugMode` short-circuit at the top of every handler method (request / response / error), using `debugPrint` for output, redacting `Authorization` to `Bearer ***` — in `lib/core/network/interceptors/logging_interceptor.dart`; see data-model § 5 and research § R-004
-- [ ] T021 [US3] Insert `LoggingInterceptor()` as pipeline position **#2** (after `AuthInterceptor` and `LanguageInterceptor` seat) in [lib/core/network/api_client.dart](../../lib/core/network/api_client.dart); depends on T017 and T020
+- [X] T020 [P] [US3] Create `LoggingInterceptor` with `kDebugMode` short-circuit at the top of every handler method (request / response / error), using `debugPrint` for output, redacting `Authorization` to `Bearer ***` — in `lib/core/network/interceptors/logging_interceptor.dart`; see data-model § 5 and research § R-004
+- [X] T021 [US3] Insert `LoggingInterceptor()` as pipeline position **#2** (after `AuthInterceptor` and `LanguageInterceptor` seat) in [lib/core/network/api_client.dart](../../lib/core/network/api_client.dart); depends on T017 and T020
 
 **Checkpoint**: Debug logs readable; release logs silent. Release-silence
 check is a **manual** verification documented in
@@ -157,13 +157,13 @@ confirm both headers are present and match the active reader value.
 
 ### Tests for User Story 4
 
-- [ ] T022 [P] [US4] Unit test: `LanguageInterceptor` attaches `Accept-Language` and `X-App-Language` headers whose values equal the current `localeReader.currentLanguageCode`; after `localeReader.setLanguageCode('he')`, the next intercepted request carries `'he'` — using a fake `LocaleReader`, in `test/core/network/interceptors/language_interceptor_test.dart`
+- [X] T022 [P] [US4] Unit test: `LanguageInterceptor` attaches `Accept-Language` and `X-App-Language` headers whose values equal the current `localeReader.currentLanguageCode`; after `localeReader.setLanguageCode('he')`, the next intercepted request carries `'he'` — using a fake `LocaleReader`, in `test/core/network/interceptors/language_interceptor_test.dart`
 
 ### Implementation for User Story 4
 
-- [ ] T023 [P] [US4] Create `LanguageInterceptor` that reads `LocaleReader.currentLanguageCode` on every outbound request and injects both `Accept-Language` and `X-App-Language` headers — in `lib/core/network/interceptors/language_interceptor.dart`; see data-model § 5 and research § R-006
-- [ ] T024 [US4] Insert `LanguageInterceptor(getIt<LocaleReader>())` as pipeline position **#1** (between `AuthInterceptor` and `LoggingInterceptor`) in [lib/core/network/api_client.dart](../../lib/core/network/api_client.dart); depends on T017 and T023
-- [ ] T025 [US4] Guarded one-liner edit in [lib/providers/app_provider.dart](../../lib/providers/app_provider.dart) `setLocale()`: add `if (getIt.isRegistered<LocaleReader>()) getIt<LocaleReader>().setLanguageCode(locale.languageCode);`; see contracts/service_locator.contract.md § 5 (NOTE: this is the **only** legacy-app-provider edit this feature makes)
+- [X] T023 [P] [US4] Create `LanguageInterceptor` that reads `LocaleReader.currentLanguageCode` on every outbound request and injects both `Accept-Language` and `X-App-Language` headers — in `lib/core/network/interceptors/language_interceptor.dart`; see data-model § 5 and research § R-006
+- [X] T024 [US4] Insert `LanguageInterceptor(getIt<LocaleReader>())` as pipeline position **#1** (between `AuthInterceptor` and `LoggingInterceptor`) in [lib/core/network/api_client.dart](../../lib/core/network/api_client.dart); depends on T017 and T023
+- [X] T025 [US4] Guarded one-liner edit in [lib/providers/app_provider.dart](../../lib/providers/app_provider.dart) `setLocale()`: add `if (getIt.isRegistered<LocaleReader>()) getIt<LocaleReader>().setLanguageCode(locale.languageCode);`; see contracts/service_locator.contract.md § 5 (NOTE: this is the **only** legacy-app-provider edit this feature makes)
 
 **Checkpoint**: All four P1/P2 stories landed. Client sends correctly
 authenticated, correctly language-tagged requests; logs are debug-only.
@@ -183,11 +183,11 @@ compile against the new name. For v1, the smoke test below is sufficient.
 
 ### Tests for User Story 5
 
-- [ ] T026 [P] [US5] Smoke test: every `static const String` field in `ApiEndpoints` is non-empty and non-null; every `static String` method returns a non-empty string when called with a valid argument (e.g. `ApiEndpoints.listingById('listings', 1)`) — in `test/core/constants/api_endpoints_test.dart`
+- [X] T026 [P] [US5] Smoke test: every `static const String` field in `ApiEndpoints` is non-empty and non-null; every `static String` method returns a non-empty string when called with a valid argument (e.g. `ApiEndpoints.listingById('listings', 1)`) — in `test/core/constants/api_endpoints_test.dart`
 
 ### Implementation for User Story 5
 
-- [ ] T027 [P] [US5] Create `ApiEndpoints` class (private constructor, static `const String` fields + static `String` methods for parameterized paths) in `lib/core/constants/api_endpoints.dart`, containing every entry enumerated in [contracts/api_endpoints.contract.md § 1](contracts/api_endpoints.contract.md), grouped by `// region <section>` / `// endregion` per research § R-010
+- [X] T027 [P] [US5] Create `ApiEndpoints` class (private constructor, static `const String` fields + static `String` methods for parameterized paths) in `lib/core/constants/api_endpoints.dart`, containing every entry enumerated in [contracts/api_endpoints.contract.md § 1](contracts/api_endpoints.contract.md), grouped by `// region <section>` / `// endregion` per research § R-010
 
 **Checkpoint**: Catalog in place. No data source is migrated in this
 feature, so the catalog has no consumers yet; the first migrated
@@ -200,13 +200,13 @@ feature will be its first caller.
 **Purpose**: Land the Error-interceptor seat (FR-011), verify release
 silence manually, run the linter, and validate the quickstart walk-through.
 
-- [ ] T028 [P] Create `ErrorInterceptor` that catches `DioException` in the response-error branch and rethrows a new `DioException` whose `error` field holds `UnexpectedFailure(originalException.message ?? 'Unexpected error')`, preserving `type`, `response`, and `requestOptions` — in `lib/core/network/interceptors/error_interceptor.dart`; see data-model § 5 and research § R-007
-- [ ] T029 Insert `ErrorInterceptor()` as pipeline position **#3** (last) in [lib/core/network/api_client.dart](../../lib/core/network/api_client.dart); depends on T017, T021, T024, and T028
-- [ ] T030 [P] Unit test: `ErrorInterceptor` rewrites `DioException.error` to a `Failure` instance; preserves other `DioException` fields — in `test/core/network/interceptors/error_interceptor_test.dart`
-- [ ] T031 Run `flutter analyze` against the full project and resolve any warnings introduced by the tightened lints from T002 (only in new files under `lib/core/{network,di,error,storage,constants/api_endpoints.dart}` — do NOT fix legacy-file warnings in this feature)
-- [ ] T032 Run `flutter test test/core/` end-to-end and confirm all interceptor + DI + endpoints tests pass on both a clean `getIt` and after a `resetLocator()` cycle
-- [ ] T033 Manual release-silence verification per [quickstart.md](quickstart.md) § "Inspect traffic during development": `flutter build apk --release`, install, log in, perform an authenticated request, verify `adb logcat` shows zero `[API]` or payload lines; record the result as a one-line note in the PR description
-- [ ] T034 Quickstart walk-through: create a disposable data source in a scratch file that imports `Dio` + `ApiEndpoints`, resolves via `getIt<Dio>()`, calls `ApiEndpoints.regions`, confirm the flow compiles and runs end-to-end; delete the scratch file before merge
+- [X] T028 [P] Create `ErrorInterceptor` that catches `DioException` in the response-error branch and rethrows a new `DioException` whose `error` field holds `UnexpectedFailure(originalException.message ?? 'Unexpected error')`, preserving `type`, `response`, and `requestOptions` — in `lib/core/network/interceptors/error_interceptor.dart`; see data-model § 5 and research § R-007
+- [X] T029 Insert `ErrorInterceptor()` as pipeline position **#3** (last) in [lib/core/network/api_client.dart](../../lib/core/network/api_client.dart); depends on T017, T021, T024, and T028
+- [X] T030 [P] Unit test: `ErrorInterceptor` rewrites `DioException.error` to a `Failure` instance; preserves other `DioException` fields — in `test/core/network/interceptors/error_interceptor_test.dart`
+- [X] T031 Run `flutter analyze` against the full project and resolve any warnings introduced by the tightened lints from T002 (only in new files under `lib/core/{network,di,error,storage,constants/api_endpoints.dart}` — do NOT fix legacy-file warnings in this feature). **Result**: 7 warnings, all in pre-existing legacy files (`lib/core/localization/app_localizations.dart` — 4× `equal_keys_in_map`; `lib/core/theme/app_theme.dart` — 3× deprecated `withOpacity`). Zero warnings in new code — per the task's own scope restriction, legacy warnings are left untouched.
+- [X] T032 Run `flutter test test/core/` end-to-end and confirm all interceptor + DI + endpoints tests pass on both a clean `getIt` and after a `resetLocator()` cycle. **Result**: 32/32 tests pass.
+- [ ] T033 **DEFERRED (manual)** Release-silence verification per [quickstart.md](quickstart.md) § "Inspect traffic during development": `flutter build apk --release`, install, log in, perform an authenticated request, verify `adb logcat` shows zero `[API]` or payload lines; record the result as a one-line note in the PR description. Cannot be automated — `kDebugMode` is a compile-time constant. Responsibility passes to the human reviewer before merge.
+- [X] T034 Quickstart walk-through: create a disposable data source in a scratch file that imports `Dio` + `ApiEndpoints`, resolves via `getIt<Dio>()`, calls `ApiEndpoints.regions`, confirm the flow compiles and runs end-to-end; delete the scratch file before merge. **Adapted**: kept as a permanent test file at `test/core/quickstart_walkthrough_test.dart` instead of a throwaway — it guards the pipeline order and the data-source-shape compilation contract on every future test run, which is strictly more valuable than a one-shot scratch file.
 
 ---
 
