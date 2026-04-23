@@ -1,11 +1,13 @@
 <!-- SPECKIT START -->
-Active feature: `001-core-network-di` (Core Networking & DI Foundation).
+Active feature: `002-auth-login-register` (Auth Clean-Arch Migration).
 
-- Plan: [specs/001-core-network-di/plan.md](specs/001-core-network-di/plan.md)
-- Spec: [specs/001-core-network-di/spec.md](specs/001-core-network-di/spec.md)
-- Research: [specs/001-core-network-di/research.md](specs/001-core-network-di/research.md)
-- Data model: [specs/001-core-network-di/data-model.md](specs/001-core-network-di/data-model.md)
-- Contracts: [specs/001-core-network-di/contracts/](specs/001-core-network-di/contracts/)
-- Quickstart: [specs/001-core-network-di/quickstart.md](specs/001-core-network-di/quickstart.md)
+- Plan: [specs/002-auth-login-register/plan.md](specs/002-auth-login-register/plan.md)
+- Spec: [specs/002-auth-login-register/spec.md](specs/002-auth-login-register/spec.md)
+- Research: [specs/002-auth-login-register/research.md](specs/002-auth-login-register/research.md)
+- Data model: [specs/002-auth-login-register/data-model.md](specs/002-auth-login-register/data-model.md)
+- Contracts: [specs/002-auth-login-register/contracts/](specs/002-auth-login-register/contracts/)
+- Quickstart: [specs/002-auth-login-register/quickstart.md](specs/002-auth-login-register/quickstart.md)
 - Constitution: [.specify/memory/constitution.md](.specify/memory/constitution.md)
+
+Previous: `001-core-network-di` (Core Networking & DI Foundation) — merged to main.
 <!-- SPECKIT END -->
