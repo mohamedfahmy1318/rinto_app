@@ -9,7 +9,7 @@ import '../../services/api_service.dart';
 import '../add_listing/add_listing_screen.dart';
 import '../edit_listing/edit_listing_screen.dart';
 import '../listing_details/listing_details_screen.dart';
-import '../auth/login_screen.dart';
+import '../../presentation/auth/auth_routes.dart';
 import '../widgets/subscription_warning_banner.dart';
 import '../checkout/checkout_screen.dart';
 
@@ -121,10 +121,7 @@ class _MyListingsScreenState extends State<MyListingsScreen>
 
     // Check if logged in
     if (!auth.isLoggedIn) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
+      Navigator.push(context, loginRoute());
       return;
     }
 

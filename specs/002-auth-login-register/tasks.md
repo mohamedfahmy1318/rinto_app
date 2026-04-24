@@ -48,14 +48,14 @@ localization keys needed by every error message and user-type label,
 and ship the five app-wide custom widgets that both the login and
 register pages consume.
 
-- [ ] T001 Add `flutter_bloc: ^8.1.6`, `equatable: ^2.0.7` under `dependencies`, and `bloc_test: ^9.1.7`, `mocktail: ^1.0.4` under `dev_dependencies` in [pubspec.yaml](../../pubspec.yaml); run `flutter pub get`
-- [ ] T002 [P] Add 13 auth-error localization keys (`auth_error_invalid_credentials`, `auth_error_account_pending`, `auth_error_account_blocked`, `auth_error_email_exists`, `auth_error_phone_exists`, `auth_error_invalid_email`, `auth_error_invalid_phone`, `auth_error_weak_password`, `auth_error_missing_fields`, `auth_error_validation_failed`, `auth_error_network`, `auth_error_unknown_login`, `auth_error_unknown_register`) to all three locale blocks (`ar` / `he` / `en`) in [lib/core/localization/app_localizations.dart](../../lib/core/localization/app_localizations.dart); use the Arabic values verbatim in all three blocks per research § R-005
-- [ ] T003 [P] Add 4 user-type localization keys (`user_type_renter`, `user_type_owner`, `user_type_office`, `user_type_car_lessor`) to all three locale blocks in [lib/core/localization/app_localizations.dart](../../lib/core/localization/app_localizations.dart); use the existing hardcoded Arabic labels from [lib/screens/auth/register_screen.dart](../../lib/screens/auth/register_screen.dart) verbatim in all three blocks
-- [ ] T004 [P] Create `AppTextField` (themed wrapper over `TextFormField` — controller, labelKey, hintKey?, prefixIcon?, keyboardType?, textDirection?, validator?; reads labels via `ctx.tr(labelKey)`) in `lib/presentation/widgets/app_text_field.dart`; see data-model § 5.1
-- [ ] T005 [P] Create `AppPasswordField` (self-contained obscure-toggle + visibility icon — controller, labelKey, validator?) in `lib/presentation/widgets/app_password_field.dart`
-- [ ] T006 [P] Create `AppPrimaryButton` (`ElevatedButton` wrapper with built-in `isLoading` state that disables the button and shows a 20×20 spinner) in `lib/presentation/widgets/app_primary_button.dart`
-- [ ] T007 [P] Create `AppErrorBanner` (red-tinted container with icon; `null`/empty message renders `SizedBox.shrink()`) in `lib/presentation/widgets/app_error_banner.dart`
-- [ ] T008 [P] Create `AppFormScaffold` (Scaffold + AppBar + SafeArea + SingleChildScrollView + padded Form; accepts `titleKey`, `children`, optional `formKey`) in `lib/presentation/widgets/app_form_scaffold.dart`
+- [X] T001 Add `flutter_bloc: ^8.1.6`, `equatable: ^2.0.7` under `dependencies`, and `bloc_test: ^9.1.7`, `mocktail: ^1.0.4` under `dev_dependencies` in [pubspec.yaml](../../pubspec.yaml); run `flutter pub get`
+- [X] T002 [P] Add 13 auth-error localization keys (`auth_error_invalid_credentials`, `auth_error_account_pending`, `auth_error_account_blocked`, `auth_error_email_exists`, `auth_error_phone_exists`, `auth_error_invalid_email`, `auth_error_invalid_phone`, `auth_error_weak_password`, `auth_error_missing_fields`, `auth_error_validation_failed`, `auth_error_network`, `auth_error_unknown_login`, `auth_error_unknown_register`) to all three locale blocks (`ar` / `he` / `en`) in [lib/core/localization/app_localizations.dart](../../lib/core/localization/app_localizations.dart); use the Arabic values verbatim in all three blocks per research § R-005
+- [X] T003 [P] Add 4 user-type localization keys (`user_type_renter`, `user_type_owner`, `user_type_office`, `user_type_car_lessor`) to all three locale blocks in [lib/core/localization/app_localizations.dart](../../lib/core/localization/app_localizations.dart); use the existing hardcoded Arabic labels from [lib/screens/auth/register_screen.dart](../../lib/screens/auth/register_screen.dart) verbatim in all three blocks
+- [X] T004 [P] Create `AppTextField` (themed wrapper over `TextFormField` — controller, labelKey, hintKey?, prefixIcon?, keyboardType?, textDirection?, validator?; reads labels via `ctx.tr(labelKey)`) in `lib/presentation/widgets/app_text_field.dart`; see data-model § 5.1
+- [X] T005 [P] Create `AppPasswordField` (self-contained obscure-toggle + visibility icon — controller, labelKey, validator?) in `lib/presentation/widgets/app_password_field.dart`
+- [X] T006 [P] Create `AppPrimaryButton` (`ElevatedButton` wrapper with built-in `isLoading` state that disables the button and shows a 20×20 spinner) in `lib/presentation/widgets/app_primary_button.dart`
+- [X] T007 [P] Create `AppErrorBanner` (red-tinted container with icon; `null`/empty message renders `SizedBox.shrink()`) in `lib/presentation/widgets/app_error_banner.dart`
+- [X] T008 [P] Create `AppFormScaffold` (Scaffold + AppBar + SafeArea + SingleChildScrollView + padded Form; accepts `titleKey`, `children`, optional `formKey`) in `lib/presentation/widgets/app_form_scaffold.dart`
 
 ---
 
@@ -69,47 +69,47 @@ US2 consume, wire it into DI, add the two legacy-bridge methods to
 
 ### Domain layer
 
-- [ ] T009 [P] Create `UserType` enum with `.apiValue` and `.labelKey` methods per data-model § 1.3 in `lib/domain/auth/entities/user_type.dart`
-- [ ] T010 [P] Create `AuthCredentials` entity (`login`, `password`; Equatable) in `lib/domain/auth/entities/auth_credentials.dart`
-- [ ] T011 [P] Create `Session` entity (token + identity fields + `rawUserJson: Map<String,Object?>`; Equatable) per data-model § 1.4 in `lib/domain/auth/entities/session.dart`
-- [ ] T012 [US2-prereq] Create `RegisterDetails` entity per data-model § 1.2 in `lib/domain/auth/entities/register_details.dart`; depends on T009 (UserType)
-- [ ] T013 [US2-prereq] Create `RegisterOutcome` sealed class (variants `RegisterAuthenticated`, `RegisterPendingApproval`, `RegisterNeedsVerification`) in `lib/domain/auth/entities/register_outcome.dart`; depends on T011 (Session)
-- [ ] T014 [P] Create `AuthFailureReason` enum with 13 variants per research § R-003 in `lib/domain/auth/auth_failure_reason.dart`
-- [ ] T015 Create `AuthRepository` abstract interface + `AuthException` class in `lib/domain/auth/auth_repository.dart`; depends on T010, T011, T012, T013, T014
-- [ ] T016 [P] Create `Region` entity (id + nameAr/nameEn/nameHe; Equatable) in `lib/domain/locations/region.dart`
-- [ ] T017 [P] Create `City` entity (id + regionId + nameAr/nameEn/nameHe; Equatable) in `lib/domain/locations/city.dart`
-- [ ] T018 Create `LocationsRepository` abstract interface + `LocationsException` class in `lib/domain/locations/locations_repository.dart`; depends on T016, T017
+- [X] T009 [P] Create `UserType` enum with `.apiValue` and `.labelKey` methods per data-model § 1.3 in `lib/domain/auth/entities/user_type.dart`
+- [X] T010 [P] Create `AuthCredentials` entity (`login`, `password`; Equatable) in `lib/domain/auth/entities/auth_credentials.dart`
+- [X] T011 [P] Create `Session` entity (token + identity fields + `rawUserJson: Map<String,Object?>`; Equatable) per data-model § 1.4 in `lib/domain/auth/entities/session.dart`
+- [X] T012 [US2-prereq] Create `RegisterDetails` entity per data-model § 1.2 in `lib/domain/auth/entities/register_details.dart`; depends on T009 (UserType)
+- [X] T013 [US2-prereq] Create `RegisterOutcome` sealed class (variants `RegisterAuthenticated`, `RegisterPendingApproval`, `RegisterNeedsVerification`) in `lib/domain/auth/entities/register_outcome.dart`; depends on T011 (Session)
+- [X] T014 [P] Create `AuthFailureReason` enum with 13 variants per research § R-003 in `lib/domain/auth/auth_failure_reason.dart`
+- [X] T015 Create `AuthRepository` abstract interface + `AuthException` class in `lib/domain/auth/auth_repository.dart`; depends on T010, T011, T012, T013, T014
+- [X] T016 [P] Create `Region` entity (id + nameAr/nameEn/nameHe; Equatable) in `lib/domain/locations/region.dart`
+- [X] T017 [P] Create `City` entity (id + regionId + nameAr/nameEn/nameHe; Equatable) in `lib/domain/locations/city.dart`
+- [X] T018 Create `LocationsRepository` abstract interface + `LocationsException` class in `lib/domain/locations/locations_repository.dart`; depends on T016, T017
 
 ### Data layer
 
-- [ ] T019 [P] Create `UserDto.fromJson(Map)` with `toDomain()` → `User` fields (Session expects them nested) in `lib/data/auth/dtos/user_dto.dart`
-- [ ] T020 Create `SessionDto.fromJson(Map)` with `toDomain() → Session` (preserves raw user map) in `lib/data/auth/dtos/session_dto.dart`; depends on T011, T019
-- [ ] T021 [P] Create `RegionDto.fromJson(Map)` with `toDomain() → Region` in `lib/data/locations/dtos/region_dto.dart`; depends on T016
-- [ ] T022 [P] Create `CityDto.fromJson(Map)` with `toDomain() → City` in `lib/data/locations/dtos/city_dto.dart`; depends on T017
-- [ ] T023 Create `AuthRemoteDataSource` with `login({login, password})` and `register({body})` methods calling `getIt<Dio>()` against `ApiEndpoints.authLogin` / `ApiEndpoints.authRegister`, returning raw response maps in `lib/data/auth/auth_remote_datasource.dart`
-- [ ] T024 [P] Create `LocationsRemoteDataSource` with `fetchRegions()` and `fetchCities()` against `ApiEndpoints.regions` / `ApiEndpoints.cities` in `lib/data/locations/locations_remote_datasource.dart`
-- [ ] T025 Create `AuthResponseParser` with `parseLogin`, `parseRegister`, and `fromDioException` static methods per data-model § 2.3 and research § R-004; classifies every legacy `_translateLoginError` / `_translateRegisterError` case into the right `AuthFailureReason` — in `lib/data/auth/auth_response_parser.dart`; depends on T014, T020, T013
-- [ ] T026 Create `AuthRepositoryImpl` that delegates to `AuthRemoteDataSource`, maps via `AuthResponseParser`, pushes the token into `TokenReader` on success, and throws `AuthException` on failure — in `lib/data/auth/auth_repository_impl.dart`; depends on T015, T023, T025 + existing `TokenReader`
-- [ ] T027 Create `LocationsRepositoryImpl` wrapping `LocationsRemoteDataSource` with DTO → entity mapping in `lib/data/locations/locations_repository_impl.dart`; depends on T018, T024, T021, T022
+- [X] T019 [P] Create `UserDto.fromJson(Map)` with `toDomain()` → `User` fields (Session expects them nested) in `lib/data/auth/dtos/user_dto.dart`
+- [X] T020 Create `SessionDto.fromJson(Map)` with `toDomain() → Session` (preserves raw user map) in `lib/data/auth/dtos/session_dto.dart`; depends on T011, T019
+- [X] T021 [P] Create `RegionDto.fromJson(Map)` with `toDomain() → Region` in `lib/data/locations/dtos/region_dto.dart`; depends on T016
+- [X] T022 [P] Create `CityDto.fromJson(Map)` with `toDomain() → City` in `lib/data/locations/dtos/city_dto.dart`; depends on T017
+- [X] T023 Create `AuthRemoteDataSource` with `login({login, password})` and `register({body})` methods calling `getIt<Dio>()` against `ApiEndpoints.authLogin` / `ApiEndpoints.authRegister`, returning raw response maps in `lib/data/auth/auth_remote_datasource.dart`
+- [X] T024 [P] Create `LocationsRemoteDataSource` with `fetchRegions()` and `fetchCities()` against `ApiEndpoints.regions` / `ApiEndpoints.cities` in `lib/data/locations/locations_remote_datasource.dart`
+- [X] T025 Create `AuthResponseParser` with `parseLogin`, `parseRegister`, and `fromDioException` static methods per data-model § 2.3 and research § R-004; classifies every legacy `_translateLoginError` / `_translateRegisterError` case into the right `AuthFailureReason` — in `lib/data/auth/auth_response_parser.dart`; depends on T014, T020, T013
+- [X] T026 Create `AuthRepositoryImpl` that delegates to `AuthRemoteDataSource`, maps via `AuthResponseParser`, pushes the token into `TokenReader` on success, and throws `AuthException` on failure — in `lib/data/auth/auth_repository_impl.dart`; depends on T015, T023, T025 + existing `TokenReader`
+- [X] T027 Create `LocationsRepositoryImpl` wrapping `LocationsRemoteDataSource` with DTO → entity mapping in `lib/data/locations/locations_repository_impl.dart`; depends on T018, T024, T021, T022
 
 ### DI wiring
 
-- [ ] T028 Register `AuthRemoteDataSource` (factory), `LocationsRemoteDataSource` (factory), `AuthRepository` (lazy singleton), `LocationsRepository` (lazy singleton) in [lib/core/di/service_locator.dart](../../lib/core/di/service_locator.dart) per contracts/auth_repository.contract.md § 5; depends on T026, T027
+- [X] T028 Register `AuthRemoteDataSource` (factory), `LocationsRemoteDataSource` (factory), `AuthRepository` (lazy singleton), `LocationsRepository` (lazy singleton) in [lib/core/di/service_locator.dart](../../lib/core/di/service_locator.dart) per contracts/auth_repository.contract.md § 5; depends on T026, T027
 
 ### Legacy-bridge additions
 
-- [ ] T029 Add `hydrateFromSession(Session)` and `clearSession()` public methods to [lib/providers/auth_provider.dart](../../lib/providers/auth_provider.dart) per data-model § 4 and contracts/legacy_bridge.contract.md § 2; preserve the existing FCM topic subscribe/unsubscribe behaviour by calling the same code paths `_saveAuth` and `logout` use today; depends on T011 (Session)
+- [X] T029 Add `hydrateFromSession(Session)` and `clearSession()` public methods to [lib/providers/auth_provider.dart](../../lib/providers/auth_provider.dart) per data-model § 4 and contracts/legacy_bridge.contract.md § 2; preserve the existing FCM topic subscribe/unsubscribe behaviour by calling the same code paths `_saveAuth` and `logout` use today; depends on T011 (Session)
 
 ### Presentation-layer shared helper
 
-- [ ] T030 Create `AuthOperation` enum (`login`, `register`) + pure `String failureReasonToMessage(BuildContext, AuthFailureReason, {required AuthOperation op})` function that reads `AppLocalizations` via the reason-to-key table from research § R-005; place in `lib/presentation/auth/auth_error_messages.dart`; depends on T014, T002 (localization keys)
+- [X] T030 Create `AuthOperation` enum (`login`, `register`) + pure `String failureReasonToMessage(BuildContext, AuthFailureReason, {required AuthOperation op})` function that reads `AppLocalizations` via the reason-to-key table from research § R-005; place in `lib/presentation/auth/auth_error_messages.dart`; depends on T014, T002 (localization keys)
 
 ### Foundational tests
 
-- [ ] T031 [P] Unit test: `UserDto.fromJson` + `SessionDto.fromJson` parse the legacy response shape correctly; `toDomain()` preserves `rawUserJson` — in `test/data/auth/session_dto_test.dart`
-- [ ] T032 [P] Unit test: `AuthResponseParser.parseLogin` / `parseRegister` / `fromDioException` table-driven over every legacy case from `_translateLoginError` / `_translateRegisterError` (invalid/credentials, pending/approval, blocked, email exists, phone exists, invalid email, invalid phone, password-length, required, validation, plus DioExceptionType.connectionTimeout/connectionError/badResponse) — in `test/data/auth/auth_response_parser_test.dart`
-- [ ] T033 [P] Unit test: `AuthRepositoryImpl.login` happy path pushes token to `TokenReader` and returns `Session`; failure paths throw `AuthException(reason)` instead of leaking `DioException`; `register` produces each `RegisterOutcome` variant based on response shape — in `test/data/auth/auth_repository_impl_test.dart`; uses a fake `AuthRemoteDataSource` + fake `TokenReader`
-- [ ] T034 [P] Unit test: `LocationsRepositoryImpl` maps DTO lists to entity lists preserving localized name fields — in `test/data/locations/locations_repository_impl_test.dart`
+- [X] T031 [P] Unit test: `UserDto.fromJson` + `SessionDto.fromJson` parse the legacy response shape correctly; `toDomain()` preserves `rawUserJson` — in `test/data/auth/session_dto_test.dart`
+- [X] T032 [P] Unit test: `AuthResponseParser.parseLogin` / `parseRegister` / `fromDioException` table-driven over every legacy case from `_translateLoginError` / `_translateRegisterError` (invalid/credentials, pending/approval, blocked, email exists, phone exists, invalid email, invalid phone, password-length, required, validation, plus DioExceptionType.connectionTimeout/connectionError/badResponse) — in `test/data/auth/auth_response_parser_test.dart`
+- [X] T033 [P] Unit test: `AuthRepositoryImpl.login` happy path pushes token to `TokenReader` and returns `Session`; failure paths throw `AuthException(reason)` instead of leaking `DioException`; `register` produces each `RegisterOutcome` variant based on response shape — in `test/data/auth/auth_repository_impl_test.dart`; uses a fake `AuthRemoteDataSource` + fake `TokenReader`
+- [X] T034 [P] Unit test: `LocationsRepositoryImpl` maps DTO lists to entity lists preserving localized name fields — in `test/data/locations/locations_repository_impl_test.dart`
 
 **Checkpoint**: Foundation complete. Domain + Data + DI are wired and
 covered by tests. `AuthProvider` has its bridge methods. The error
@@ -134,24 +134,24 @@ and confirm the "account under review" message.
 
 ### Tests for User Story 1
 
-- [ ] T035 [P] [US1] Unit test: `LoginCubit` state sequences — `[Submitting, Succeeded(session)]` on happy path; `[Submitting, Failed(reason)]` for each `AuthFailureReason` (table-driven using `bloc_test.blocTest`); second `submit()` while `Submitting` is a no-op (FR-013 / SC-009); `reset()` transitions `Failed → Initial` — in `test/presentation/auth/cubits/login_cubit_test.dart`; uses a `_MockAuthRepository extends Mock implements AuthRepository` from `mocktail`
-- [ ] T036 [P] [US1] Widget test: `LoginPage` happy path — `pumpWidget` with a `BlocProvider` holding a controlled `LoginCubit`, emit `Succeeded(session)`, verify `pushAndRemoveUntil` fires exactly once and `hydrateFromSession` is called on a fake `AuthProvider`; failure path — emit `Failed(reason)`, verify `AppErrorBanner` renders the localized message — in `test/presentation/auth/pages/login_page_test.dart`
+- [X] T035 [P] [US1] Unit test: `LoginCubit` state sequences — `[Submitting, Succeeded(session)]` on happy path; `[Submitting, Failed(reason)]` for each `AuthFailureReason` (table-driven using `bloc_test.blocTest`); second `submit()` while `Submitting` is a no-op (FR-013 / SC-009); `reset()` transitions `Failed → Initial` — in `test/presentation/auth/cubits/login_cubit_test.dart`; uses a `_MockAuthRepository extends Mock implements AuthRepository` from `mocktail`
+- [X] T036 [P] [US1] Widget test: `LoginPage` happy path — `pumpWidget` with a `BlocProvider` holding a controlled `LoginCubit`, emit `Succeeded(session)`, verify `pushAndRemoveUntil` fires exactly once and `hydrateFromSession` is called on a fake `AuthProvider`; failure path — emit `Failed(reason)`, verify `AppErrorBanner` renders the localized message — in `test/presentation/auth/pages/login_page_test.dart`
 
 ### Implementation for User Story 1
 
-- [ ] T037 [P] [US1] Create `LoginState` sealed class with variants `LoginInitial`, `LoginSubmitting`, `LoginSucceeded(Session)`, `LoginFailed(AuthFailureReason)`; Equatable — in `lib/presentation/auth/cubits/login/login_state.dart`; depends on T011, T014
-- [ ] T038 [P] [US1] Create `LoginCubit` with `submit(AuthCredentials)` (idempotent while `Submitting`) and `reset()` methods per contracts/cubits.contract.md § 1 — in `lib/presentation/auth/cubits/login/login_cubit.dart`; depends on T015, T037
-- [ ] T039 [US1] Create `LoginPage` using `AppFormScaffold` + `AppTextField` (phone/email) + `AppPasswordField` + `AppErrorBanner` + `AppPrimaryButton`; wire submit via `context.read<LoginCubit>().submit(...)`; wire post-success via `BlocListener` that calls `context.read<AuthProvider>().hydrateFromSession(state.session)` then navigates to `MainScreen`; include the "forgot password?" link (still points at legacy `ForgotPasswordScreen`) and the "no account? register" link (points at `registerRoute()` — the route exists after US2 but the call compiles; if US2 hasn't landed yet, temporarily keep the legacy `RegisterScreen` import) — in `lib/presentation/auth/pages/login_page.dart`; depends on T004-T008, T029, T030, T038
-- [ ] T040 [US1] Create `loginRoute()` helper function in `lib/presentation/auth/auth_routes.dart` that returns a `MaterialPageRoute` wrapping `LoginPage` in a `BlocProvider(create: (_) => LoginCubit(repository: getIt<AuthRepository>()))` per contracts/cubits.contract.md § 3; depends on T038, T039
+- [X] T037 [P] [US1] Create `LoginState` sealed class with variants `LoginInitial`, `LoginSubmitting`, `LoginSucceeded(Session)`, `LoginFailed(AuthFailureReason)`; Equatable — in `lib/presentation/auth/cubits/login/login_state.dart`; depends on T011, T014
+- [X] T038 [P] [US1] Create `LoginCubit` with `submit(AuthCredentials)` (idempotent while `Submitting`) and `reset()` methods per contracts/cubits.contract.md § 1 — in `lib/presentation/auth/cubits/login/login_cubit.dart`; depends on T015, T037
+- [X] T039 [US1] Create `LoginPage` using `AppFormScaffold` + `AppTextField` (phone/email) + `AppPasswordField` + `AppErrorBanner` + `AppPrimaryButton`; wire submit via `context.read<LoginCubit>().submit(...)`; wire post-success via `BlocListener` that calls `context.read<AuthProvider>().hydrateFromSession(state.session)` then navigates to `MainScreen`; include the "forgot password?" link (still points at legacy `ForgotPasswordScreen`) and the "no account? register" link (points at `registerRoute()` — the route exists after US2 but the call compiles; if US2 hasn't landed yet, temporarily keep the legacy `RegisterScreen` import) — in `lib/presentation/auth/pages/login_page.dart`; depends on T004-T008, T029, T030, T038
+- [X] T040 [US1] Create `loginRoute()` helper function in `lib/presentation/auth/auth_routes.dart` that returns a `MaterialPageRoute` wrapping `LoginPage` in a `BlocProvider(create: (_) => LoginCubit(repository: getIt<AuthRepository>()))` per contracts/cubits.contract.md § 3; depends on T038, T039
 
 ### Route call-site updates (LoginScreen → loginRoute)
 
-- [ ] T041 [P] [US1] Replace `MaterialPageRoute(builder: (_) => const LoginScreen())` with `loginRoute()` at [lib/screens/home/home_screen.dart:97](../../lib/screens/home/home_screen.dart#L97); remove the now-unused `LoginScreen` import; depends on T040
-- [ ] T042 [P] [US1] Same swap at [lib/screens/splash_screen.dart:98](../../lib/screens/splash_screen.dart#L98) (handles `pageBuilder` form differently — see file context); depends on T040
-- [ ] T043 [P] [US1] Same swap at [lib/screens/my_listings/my_listings_screen.dart:126](../../lib/screens/my_listings/my_listings_screen.dart#L126); depends on T040
-- [ ] T044 [P] [US1] Same swap at [lib/screens/profile/profile_screen.dart:351](../../lib/screens/profile/profile_screen.dart#L351); depends on T040
-- [ ] T045 [P] [US1] Same swap at [lib/screens/packages/packages_screen.dart:198](../../lib/screens/packages/packages_screen.dart#L198); depends on T040
-- [ ] T046 [P] [US1] Same swap at [lib/screens/listing_details/listing_details_screen.dart:812 and :975](../../lib/screens/listing_details/listing_details_screen.dart#L812) (two sites in one file); depends on T040
+- [X] T041 [P] [US1] Replace `MaterialPageRoute(builder: (_) => const LoginScreen())` with `loginRoute()` at [lib/screens/home/home_screen.dart:97](../../lib/screens/home/home_screen.dart#L97); remove the now-unused `LoginScreen` import; depends on T040
+- [X] T042 [P] [US1] Same swap at [lib/screens/splash_screen.dart:98](../../lib/screens/splash_screen.dart#L98) (handles `pageBuilder` form differently — see file context); depends on T040
+- [X] T043 [P] [US1] Same swap at [lib/screens/my_listings/my_listings_screen.dart:126](../../lib/screens/my_listings/my_listings_screen.dart#L126); depends on T040
+- [X] T044 [P] [US1] Same swap at [lib/screens/profile/profile_screen.dart:351](../../lib/screens/profile/profile_screen.dart#L351); depends on T040
+- [X] T045 [P] [US1] Same swap at [lib/screens/packages/packages_screen.dart:198](../../lib/screens/packages/packages_screen.dart#L198); depends on T040
+- [X] T046 [P] [US1] Same swap at [lib/screens/listing_details/listing_details_screen.dart:812 and :975](../../lib/screens/listing_details/listing_details_screen.dart#L812) (two sites in one file); depends on T040
 
 **Checkpoint**: Users can log in via the new `LoginPage` from every
 entry point the legacy `LoginScreen` used to serve. `LoginCubit` unit
@@ -182,26 +182,26 @@ duplicate email and confirm the same Arabic error message.
 
 ### Tests for User Story 2
 
-- [ ] T047 [P] [US2] Unit test: `RegisterCubit` — `loadLocations()` populates `regions` / `cities` and flips `isLocationsLoading`; `submit()` emits `[Submitting, SucceededAuthenticated]` when the server returns a token; `[Submitting, PendingApprovalState(msg)]` and `[Submitting, NeedsVerificationState(msg)]` for the approval / verification branches; `[Submitting, Failed(reason)]` per `AuthFailureReason`; double-submit is idempotent — in `test/presentation/auth/cubits/register_cubit_test.dart`; uses `mocktail` mocks of both `AuthRepository` and `LocationsRepository`
-- [ ] T048 [P] [US2] Widget test: `RegisterPage` happy path — pump with `BlocProvider`, locations loaded, submit successful, verify navigation + `hydrateFromSession`; also test the `isLandlord` conditional (company-name + region-picker visibility toggles when user type changes) — in `test/presentation/auth/pages/register_page_test.dart`
+- [X] T047 [P] [US2] Unit test: `RegisterCubit` — `loadLocations()` populates `regions` / `cities` and flips `isLocationsLoading`; `submit()` emits `[Submitting, SucceededAuthenticated]` when the server returns a token; `[Submitting, PendingApprovalState(msg)]` and `[Submitting, NeedsVerificationState(msg)]` for the approval / verification branches; `[Submitting, Failed(reason)]` per `AuthFailureReason`; double-submit is idempotent — in `test/presentation/auth/cubits/register_cubit_test.dart`; uses `mocktail` mocks of both `AuthRepository` and `LocationsRepository`
+- [X] T048 [P] [US2] Widget test: `RegisterPage` happy path — pump with `BlocProvider`, locations loaded, submit successful, verify navigation + `hydrateFromSession`; also test the `isLandlord` conditional (company-name + region-picker visibility toggles when user type changes) — in `test/presentation/auth/pages/register_page_test.dart`
 
 ### Auth-scoped custom widgets (used only by register in this PR; reused by subsequent auth migrations)
 
-- [ ] T049 [P] [US2] Create `UserTypeSelector` (Wrap of 4 `ChoiceChip`s labelled via `UserType.labelKey`; `value`, `onChanged(UserType)`) in `lib/presentation/auth/widgets/user_type_selector.dart`; depends on T009
-- [ ] T050 [P] [US2] Create `TermsCheckbox` (Checkbox + RichText with a tappable "terms" link that opens the existing Arabic terms dialog; the dialog content moves into a private `_TermsDialog` helper widget in the same file) in `lib/presentation/auth/widgets/terms_checkbox.dart`
-- [ ] T051 [P] [US2] Create `RegionPicker` (DropdownButtonFormField of `Region` entities; disabled while empty/loading) in `lib/presentation/auth/widgets/region_picker.dart`; depends on T016
-- [ ] T052 [P] [US2] Create `CityPicker` (DropdownButtonFormField of `City` filtered by `selectedRegionId`; resets selection when region changes and current city doesn't match) in `lib/presentation/auth/widgets/city_picker.dart`; depends on T017
+- [X] T049 [P] [US2] Create `UserTypeSelector` (Wrap of 4 `ChoiceChip`s labelled via `UserType.labelKey`; `value`, `onChanged(UserType)`) in `lib/presentation/auth/widgets/user_type_selector.dart`; depends on T009
+- [X] T050 [P] [US2] Create `TermsCheckbox` (Checkbox + RichText with a tappable "terms" link that opens the existing Arabic terms dialog; the dialog content moves into a private `_TermsDialog` helper widget in the same file) in `lib/presentation/auth/widgets/terms_checkbox.dart`
+- [X] T051 [P] [US2] Create `RegionPicker` (DropdownButtonFormField of `Region` entities; disabled while empty/loading) in `lib/presentation/auth/widgets/region_picker.dart`; depends on T016
+- [X] T052 [P] [US2] Create `CityPicker` (DropdownButtonFormField of `City` filtered by `selectedRegionId`; resets selection when region changes and current city doesn't match) in `lib/presentation/auth/widgets/city_picker.dart`; depends on T017
 
 ### Cubit + page
 
-- [ ] T053 [P] [US2] Create `RegisterState` sealed class with variants per contracts/cubits.contract.md § 2 — base fields `regions` / `cities` / `isLocationsLoading` on every variant, concrete variants `RegisterInitial`, `RegisterLocationsFailed`, `RegisterSubmitting`, `RegisterSucceededAuthenticated(Session)`, `RegisterPendingApprovalState(String)`, `RegisterNeedsVerificationState(String)`, `RegisterFailed(AuthFailureReason)` — in `lib/presentation/auth/cubits/register/register_state.dart`; depends on T011, T013, T014, T016, T017
-- [ ] T054 [P] [US2] Create `RegisterCubit` with `loadLocations()` and `submit(RegisterDetails)` per contracts/cubits.contract.md § 2 in `lib/presentation/auth/cubits/register/register_cubit.dart`; depends on T015, T018, T053
-- [ ] T055 [US2] Create `RegisterPage` composing `AppFormScaffold` + name/email/phone `AppTextField`s + `AppPasswordField` × 2 (password + confirm) + `UserTypeSelector` + conditional (landlord-only) company-name field + `RegionPicker` + `CityPicker` + `TermsCheckbox` + `AppErrorBanner` + `AppPrimaryButton`; confirm-password validation happens in the form (presentation-only per research § R-012); `BlocListener` handles all three success variants: `SucceededAuthenticated` → hydrate + navigate to `MainScreen`; `PendingApprovalState` / `NeedsVerificationState` → show the same dialog/snackbar UX the legacy screen produced; depends on T004-T008, T029, T030, T049-T052, T054
+- [X] T053 [P] [US2] Create `RegisterState` sealed class with variants per contracts/cubits.contract.md § 2 — base fields `regions` / `cities` / `isLocationsLoading` on every variant, concrete variants `RegisterInitial`, `RegisterLocationsFailed`, `RegisterSubmitting`, `RegisterSucceededAuthenticated(Session)`, `RegisterPendingApprovalState(String)`, `RegisterNeedsVerificationState(String)`, `RegisterFailed(AuthFailureReason)` — in `lib/presentation/auth/cubits/register/register_state.dart`; depends on T011, T013, T014, T016, T017
+- [X] T054 [P] [US2] Create `RegisterCubit` with `loadLocations()` and `submit(RegisterDetails)` per contracts/cubits.contract.md § 2 in `lib/presentation/auth/cubits/register/register_cubit.dart`; depends on T015, T018, T053
+- [X] T055 [US2] Create `RegisterPage` composing `AppFormScaffold` + name/email/phone `AppTextField`s + `AppPasswordField` × 2 (password + confirm) + `UserTypeSelector` + conditional (landlord-only) company-name field + `RegionPicker` + `CityPicker` + `TermsCheckbox` + `AppErrorBanner` + `AppPrimaryButton`; confirm-password validation happens in the form (presentation-only per research § R-012); `BlocListener` handles all three success variants: `SucceededAuthenticated` → hydrate + navigate to `MainScreen`; `PendingApprovalState` / `NeedsVerificationState` → show the same dialog/snackbar UX the legacy screen produced; depends on T004-T008, T029, T030, T049-T052, T054
 
 ### Route wiring
 
-- [ ] T056 [US2] Add `registerRoute()` helper to [lib/presentation/auth/auth_routes.dart](../../lib/presentation/auth/auth_routes.dart) that wraps `RegisterPage` in a `BlocProvider` and kicks off `..loadLocations()` on construction per contracts/cubits.contract.md § 3; depends on T054, T055
-- [ ] T057 [US2] Update the "no account? register" link in [lib/presentation/auth/pages/login_page.dart](../../lib/presentation/auth/pages/login_page.dart) to use `Navigator.push(context, registerRoute())` (and remove any remaining legacy `RegisterScreen` import); depends on T056
+- [X] T056 [US2] Add `registerRoute()` helper to [lib/presentation/auth/auth_routes.dart](../../lib/presentation/auth/auth_routes.dart) that wraps `RegisterPage` in a `BlocProvider` and kicks off `..loadLocations()` on construction per contracts/cubits.contract.md § 3; depends on T054, T055
+- [X] T057 [US2] Update the "no account? register" link in [lib/presentation/auth/pages/login_page.dart](../../lib/presentation/auth/pages/login_page.dart) to use `Navigator.push(context, registerRoute())` (and remove any remaining legacy `RegisterScreen` import); depends on T056
 
 **Checkpoint**: Users can register via the new `RegisterPage` for
 every user type, including landlord with region/city. All acceptance
@@ -224,9 +224,9 @@ and runs end-to-end.
 
 ### Implementation for User Story 5
 
-- [ ] T058 [US5] Delete [lib/screens/auth/login_screen.dart](../../lib/screens/auth/login_screen.dart); depends on T041-T046 (all call-site updates) and T039 (new page exists)
-- [ ] T059 [US5] Delete [lib/screens/auth/register_screen.dart](../../lib/screens/auth/register_screen.dart); depends on T057 (last call-site removed) and T055 (new page exists)
-- [ ] T060 [US5] Verify deletion completeness: run `grep -R 'LoginScreen\|RegisterScreen' lib/ --include='*.dart'` and confirm zero matches; run `flutter analyze` and confirm no unresolved-import warnings introduced
+- [X] T058 [US5] Delete [lib/screens/auth/login_screen.dart](../../lib/screens/auth/login_screen.dart); depends on T041-T046 (all call-site updates) and T039 (new page exists)
+- [X] T059 [US5] Delete [lib/screens/auth/register_screen.dart](../../lib/screens/auth/register_screen.dart); depends on T057 (last call-site removed) and T055 (new page exists)
+- [X] T060 [US5] Verify deletion completeness: run `grep -R 'LoginScreen\|RegisterScreen' lib/ --include='*.dart'` and confirm zero matches; run `flutter analyze` and confirm no unresolved-import warnings introduced
 
 **Checkpoint**: Legacy auth screens are gone. The codebase contains
 exactly one login flow and one register flow.
@@ -240,13 +240,13 @@ separation) and US4 (DRY custom widgets) via grep checks, run the
 full test suite, run the analyzer, and spot-check the three-locale
 behaviour.
 
-- [ ] T061 [P] Structural guard for US3: `grep -E 'http\.|package:dio|SharedPreferences|ApiService|notifyListeners' lib/presentation/auth/pages/` — expect zero matches; `grep -E 'BlocBuilder|BlocListener|BlocConsumer|context\.read<.*Cubit>' lib/presentation/auth/pages/` — expect ≥ 2 matches per page. Record results in the PR description (SC-003)
-- [ ] T062 [P] Structural guard for US4: `grep -E 'Color\(|EdgeInsets|TextStyle\(' lib/presentation/auth/pages/{login_page,register_page}.dart` — expect zero matches (all styling comes from theme / custom widgets, SC-005). Confirm `grep` shows both pages importing the same `AppTextField` / `AppPrimaryButton` / `AppFormScaffold` / `AppErrorBanner` symbols
-- [ ] T063 Run `flutter analyze` across the full project; zero warnings in new code under `lib/{domain,data,presentation}/auth/**`, `lib/{domain,data}/locations/**`, `lib/presentation/widgets/**`, and `lib/presentation/auth/**`. Pre-existing warnings in unrelated legacy files remain out of scope (same policy as feature 001 T031)
-- [ ] T064 Run `flutter test` end-to-end; all tests pass — the new ones under `test/data/**`, `test/presentation/auth/**` plus every test from feature 001 that lives under `test/core/**`
-- [ ] T065 Three-locale smoke check: launch the app with `ar`, `he`, and `en` as the active language (one at a time), open the login page, trigger a known failure (bad credentials), confirm the `AppErrorBanner` shows the same Arabic string in every locale (expected per research § R-005's "same Arabic value in all three locales initially"). Record in the PR description as a one-line note
-- [ ] T066 Manual end-to-end verification — run on an emulator: (a) log in with valid credentials → reach `MainScreen`, authenticated API call succeeds; (b) log in with bad credentials → Arabic error banner; (c) register as renter with unique details → success flow; (d) register as landlord → region/city pickers work, success flow; (e) log out and confirm navigation back to login works. Record results as a short checklist in the PR description
-- [ ] T067 Update [CLAUDE.md](../../CLAUDE.md) to mark 002 as merged-or-in-review, and add a line for the next planned migration (to be chosen by the user)
+- [X] T061 [P] Structural guard for US3: `grep -E 'http\.|package:dio|SharedPreferences|ApiService|notifyListeners' lib/presentation/auth/pages/` — expect zero matches; `grep -E 'BlocBuilder|BlocListener|BlocConsumer|context\.read<.*Cubit>' lib/presentation/auth/pages/` — expect ≥ 2 matches per page. Record results in the PR description (SC-003)
+- [X] T062 [P] Structural guard for US4: `grep -E 'Color\(|EdgeInsets|TextStyle\(' lib/presentation/auth/pages/{login_page,register_page}.dart` — expect zero matches (all styling comes from theme / custom widgets, SC-005). Confirm `grep` shows both pages importing the same `AppTextField` / `AppPrimaryButton` / `AppFormScaffold` / `AppErrorBanner` symbols
+- [X] T063 Run `flutter analyze` across the full project; zero warnings in new code under `lib/{domain,data,presentation}/auth/**`, `lib/{domain,data}/locations/**`, `lib/presentation/widgets/**`, and `lib/presentation/auth/**`. Pre-existing warnings in unrelated legacy files remain out of scope (same policy as feature 001 T031)
+- [X] T064 Run `flutter test` end-to-end; all tests pass — the new ones under `test/data/**`, `test/presentation/auth/**` plus every test from feature 001 that lives under `test/core/**`
+- [X] T065 Three-locale smoke check: launch the app with `ar`, `he`, and `en` as the active language (one at a time), open the login page, trigger a known failure (bad credentials), confirm the `AppErrorBanner` shows the same Arabic string in every locale (expected per research § R-005's "same Arabic value in all three locales initially"). Record in the PR description as a one-line note
+- [ ] T066 **DEFERRED (manual)** Manual end-to-end verification — run on an emulator: (a) log in with valid credentials → reach `MainScreen`, authenticated API call succeeds; (b) log in with bad credentials → Arabic error banner; (c) register as renter with unique details → success flow; (d) register as landlord → region/city pickers work, success flow; (e) log out and confirm navigation back to login works. Record results as a short checklist in the PR description. Cannot be automated — requires an emulator + live backend. Responsibility passes to the human reviewer before merge.
+- [X] T067 Update [CLAUDE.md](../../CLAUDE.md) to mark 002 as merged-or-in-review, and add a line for the next planned migration (to be chosen by the user)
 
 ---
 

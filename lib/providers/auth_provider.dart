@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants/app_constants.dart';
 import '../core/di/service_locator.dart';
 import '../core/storage/token_reader.dart';
+import '../domain/auth/entities/session.dart';
 import '../models/user_model.dart';
 import '../services/api_service.dart';
 import '../services/fcm_service.dart';
@@ -211,6 +212,70 @@ class AuthProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint('Error saving FCM token: $e');
     }
+  }
+
+  /// Pushes a Domain [Session] obtained by the new AuthCubit into the
+  /// legacy provider state so screens still reading `user` / `isLoggedIn`
+  /// through Provider keep working unchanged during the migration.
+  ///
+  /// Mirrors the state-update half of [_saveAuth] — no network call;
+  /// the Cubit already made it.
+  ///
+  /// Delete this method after the last non-auth `AuthProvider` consumer
+  /// migrates off Provider; see
+  /// `specs/002-auth-login-register/contracts/legacy_bridge.contract.md`.
+  Future<void> hydrateFromSession(Session session) async {
+    _token = session.token;
+    _user = UserModel.fromJson(session.rawUserJson);
+    ApiService.setToken(_token);
+    if (getIt.isRegistered<TokenReader>()) {
+      getIt<TokenReader>().setToken(_token);
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    if (_token != null && _token!.isNotEmpty) {
+      await prefs.setString(StorageKeys.token, _token!);
+    }
+    await prefs.setString(StorageKeys.user, jsonEncode(session.rawUserJson));
+
+    // FCM subscribe — preserved from the existing _saveAuth path.
+    if (!kIsWeb && Platform.isAndroid) {
+      try {
+        await _saveFcmToken();
+        await FCMService.subscribeToTopic('user_type_${_user!.userType}');
+        await FCMService.subscribeToTopic('all_users');
+      } catch (e) {
+        debugPrint('FCM subscribe after hydrate failed (non-fatal): $e');
+      }
+    }
+
+    notifyListeners();
+  }
+
+  /// Clears the legacy provider state without hitting the network.
+  /// Mirrors the non-network half of [logout].
+  Future<void> clearSession() async {
+    if (_user != null && !kIsWeb && Platform.isAndroid) {
+      try {
+        await FCMService.unsubscribeFromTopic('user_type_${_user!.userType}');
+        await FCMService.unsubscribeFromTopic('all_users');
+      } catch (e) {
+        debugPrint('FCM unsubscribe during clearSession failed: $e');
+      }
+    }
+
+    _user = null;
+    _token = null;
+    ApiService.setToken(null);
+    if (getIt.isRegistered<TokenReader>()) {
+      getIt<TokenReader>().clear();
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(StorageKeys.token);
+    await prefs.remove(StorageKeys.user);
+
+    notifyListeners();
   }
 
   Future<void> logout() async {

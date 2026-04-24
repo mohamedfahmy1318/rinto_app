@@ -8,7 +8,7 @@ import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
 import '../../services/apple_iap_service.dart';
 import '../../services/google_iap_service.dart';
-import '../auth/login_screen.dart';
+import '../../presentation/auth/auth_routes.dart';
 
 class PackagesScreen extends StatefulWidget {
   const PackagesScreen({super.key});
@@ -193,10 +193,7 @@ class _PackagesScreenState extends State<PackagesScreen>
     if (_selectedPlan == null) return;
     final auth = Provider.of<AuthProvider>(context, listen: false);
     if (!auth.isLoggedIn) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
+      Navigator.push(context, loginRoute());
       return;
     }
     if (_paymentMethod == 'apple_iap') {

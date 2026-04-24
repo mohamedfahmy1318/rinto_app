@@ -11,7 +11,7 @@ import '../widgets/search_bar_widget.dart';
 import '../widgets/cta_banner.dart';
 import '../widgets/admin_banner_widget.dart';
 import '../add_listing/add_listing_screen.dart';
-import '../auth/login_screen.dart';
+import '../../presentation/auth/auth_routes.dart';
 import '../search/search_screen.dart';
 import '../notifications/notifications_screen.dart';
 
@@ -92,10 +92,7 @@ class _HomeScreenState extends State<HomeScreen>
     final auth = Provider.of<AuthProvider>(context, listen: false);
 
     if (!auth.isLoggedIn) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
+      Navigator.push(context, loginRoute());
       return;
     }
 

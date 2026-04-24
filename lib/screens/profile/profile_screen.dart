@@ -6,7 +6,7 @@ import '../../core/localization/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/app_provider.dart';
 import '../../services/api_service.dart';
-import '../auth/login_screen.dart';
+import '../../presentation/auth/auth_routes.dart';
 import 'my_subscriptions_screen.dart';
 import 'edit_profile_screen.dart';
 
@@ -346,10 +346,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
-                );
+                Navigator.push(context, loginRoute());
               },
               child: Text(context.tr('login')),
             ),
