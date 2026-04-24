@@ -1,5 +1,5 @@
 <!-- SPECKIT START -->
-Active feature: `003-auth-forgot-otp-reset` (Auth Recovery Flows — Clean-Arch Migration).
+Active feature: `003-auth-forgot-otp-reset` (Auth Recovery Flows — Clean-Arch Migration) — implemented, pending merge.
 
 - Plan: [specs/003-auth-forgot-otp-reset/plan.md](specs/003-auth-forgot-otp-reset/plan.md)
 - Spec: [specs/003-auth-forgot-otp-reset/spec.md](specs/003-auth-forgot-otp-reset/spec.md)
@@ -14,7 +14,7 @@ Previous:
 - `001-core-network-di` (Core Networking & DI Foundation) — merged to main.
 
 Next candidates (to be decided):
-- `004-session-cubit-migration` — introduce `SessionCubit` and migrate the remaining ~15 `AuthProvider` consumers so the legacy bridge (`hydrateFromSession` / `clearSession` + `BlocListener` shims) can be deleted.
+- `004-session-cubit-migration` — introduce `SessionCubit` and migrate the remaining ~15 `AuthProvider` consumers so the legacy bridge (`hydrateFromSession` / `clearSession` + `BlocListener` shims) + the legacy `AuthProvider` entirely can be deleted.
 - Deliver the typed `Failure` hierarchy follow-up scoped out of feature 001 (concrete `NetworkFailure` / `ServerFailure` mapping in the error interceptor).
 - Migrate a non-auth feature (Favorites / Notifications / Profile / ...).
 <!-- SPECKIT END -->

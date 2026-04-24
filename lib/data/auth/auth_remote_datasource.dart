@@ -30,4 +30,36 @@ class AuthRemoteDataSource {
     );
     return response.data ?? const <String, Object?>{};
   }
+
+  Future<Map<String, Object?>> forgotPassword(String phone) async {
+    final response = await _dio.post<Map<String, Object?>>(
+      ApiEndpoints.authForgotPassword,
+      data: <String, Object?>{'phone': phone},
+    );
+    return response.data ?? const <String, Object?>{};
+  }
+
+  Future<Map<String, Object?>> resendOtp(String phone) async {
+    final response = await _dio.post<Map<String, Object?>>(
+      ApiEndpoints.authResendOtp,
+      data: <String, Object?>{'phone': phone, 'type': 'password_reset'},
+    );
+    return response.data ?? const <String, Object?>{};
+  }
+
+  Future<Map<String, Object?>> resetPassword({
+    required String phone,
+    required String code,
+    required String newPassword,
+  }) async {
+    final response = await _dio.post<Map<String, Object?>>(
+      ApiEndpoints.authResetPassword,
+      data: <String, Object?>{
+        'phone': phone,
+        'otp': code,
+        'password': newPassword,
+      },
+    );
+    return response.data ?? const <String, Object?>{};
+  }
 }

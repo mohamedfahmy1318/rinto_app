@@ -25,6 +25,8 @@ String failureReasonToMessage(
     AuthFailureReason.missingRequiredFields => 'auth_error_missing_fields',
     AuthFailureReason.validationFailed => 'auth_error_validation_failed',
     AuthFailureReason.network => 'auth_error_network',
+    AuthFailureReason.invalidOtp => 'auth_error_invalid_otp',
+    AuthFailureReason.expiredOtp => 'auth_error_expired_otp',
     AuthFailureReason.unknownLogin ||
     AuthFailureReason.unknownRegister => op == AuthOperation.login
         ? 'auth_error_unknown_login'

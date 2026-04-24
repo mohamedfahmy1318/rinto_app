@@ -65,6 +65,62 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  @override
+  Future<void> forgotPassword(String phone) async {
+    try {
+      final raw = await _dataSource.forgotPassword(phone);
+      final parsed = AuthResponseParser.parseForgotPassword(raw);
+      if (parsed is AuthResponseFailure) throw AuthException(parsed.reason);
+    } on DioException catch (e) {
+      throw AuthException(
+        AuthResponseParser.fromDioException(e, op: AuthOperation.login),
+      );
+    }
+  }
+
+  @override
+  Future<void> verifyOtp(String phone, String code) async {
+    // Client-side shape check only — server validates at resetPassword
+    // time. See specs/003-auth-forgot-otp-reset/research.md § R-001.
+    if (code.length != 6) {
+      throw const AuthException(AuthFailureReason.invalidOtp);
+    }
+  }
+
+  @override
+  Future<void> resendOtp(String phone) async {
+    try {
+      final raw = await _dataSource.resendOtp(phone);
+      final parsed = AuthResponseParser.parseForgotPassword(raw);
+      if (parsed is AuthResponseFailure) throw AuthException(parsed.reason);
+    } on DioException catch (e) {
+      throw AuthException(
+        AuthResponseParser.fromDioException(e, op: AuthOperation.login),
+      );
+    }
+  }
+
+  @override
+  Future<void> resetPassword(
+    String phone,
+    String code,
+    String newPassword,
+  ) async {
+    try {
+      final raw = await _dataSource.resetPassword(
+        phone: phone,
+        code: code,
+        newPassword: newPassword,
+      );
+      final parsed = AuthResponseParser.parseResetPassword(raw);
+      if (parsed is AuthResponseFailure) throw AuthException(parsed.reason);
+    } on DioException catch (e) {
+      throw AuthException(
+        AuthResponseParser.fromDioException(e, op: AuthOperation.login),
+      );
+    }
+  }
+
   Session _afterSuccess(Session session) {
     if (session.token.isNotEmpty) {
       _tokenReader.setToken(session.token);

@@ -157,6 +157,55 @@ abstract final class AuthResponseParser {
     return AuthFailureReason.unknownLogin;
   }
 
+  /// Parses a `forgot-password` response. Success is envelope-only
+  /// (no `data` payload expected). Failure maps via
+  /// [_recoveryReasonFromMessage].
+  static AuthResponse parseForgotPassword(Map<String, Object?> response) {
+    if (response['success'] == false) {
+      final message = (response['message'] ?? '').toString();
+      return AuthResponseFailure(_recoveryReasonFromMessage(message));
+    }
+    return AuthResponseSuccess(session: _emptySession());
+  }
+
+  /// Parses a `reset-password` response. The server has validated
+  /// the OTP + applied the new password atomically on success.
+  /// Failure messages include the new `invalidOtp` / `expiredOtp`
+  /// variants as well as the standard validation errors.
+  static AuthResponse parseResetPassword(Map<String, Object?> response) {
+    if (response['success'] == false) {
+      final message = (response['message'] ?? '').toString();
+      return AuthResponseFailure(_recoveryReasonFromMessage(message));
+    }
+    return AuthResponseSuccess(session: _emptySession());
+  }
+
+  /// Recovery-flow message classifier. Recognises OTP-specific
+  /// errors first, then falls through to the register-style table.
+  static AuthFailureReason _recoveryReasonFromMessage(String message) {
+    final msg = message.toLowerCase();
+    if (msg.contains('invalid otp') ||
+        msg.contains('wrong code') ||
+        msg.contains('incorrect code')) {
+      return AuthFailureReason.invalidOtp;
+    }
+    if (msg.contains('expired otp') ||
+        msg.contains('otp expired') ||
+        msg.contains('code expired')) {
+      return AuthFailureReason.expiredOtp;
+    }
+    if (msg.contains('password') && msg.contains('least')) {
+      return AuthFailureReason.weakPassword;
+    }
+    if (msg.contains('invalid phone')) {
+      return AuthFailureReason.invalidPhone;
+    }
+    if (msg.contains('required')) {
+      return AuthFailureReason.missingRequiredFields;
+    }
+    return AuthFailureReason.unknownLogin;
+  }
+
   // Mirrors AuthProvider._translateRegisterError.
   static AuthFailureReason _registerReasonFromMessage(String message) {
     final msg = message.toLowerCase();

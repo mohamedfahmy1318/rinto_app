@@ -6,9 +6,6 @@ import '../../../core/theme/app_colors.dart';
 import '../../../domain/auth/auth_failure_reason.dart';
 import '../../../domain/auth/entities/auth_credentials.dart';
 import '../../../providers/auth_provider.dart';
-// Legacy-bridge: forgot-password screen is out of scope for this
-// feature and still uses the legacy AuthProvider directly.
-import '../../../screens/auth/forgot_password_screen.dart';
 import '../../../screens/main_screen.dart';
 import '../../widgets/app_error_banner.dart';
 import '../../widgets/app_form_scaffold.dart';
@@ -176,12 +173,7 @@ class _ForgotPasswordLink extends StatelessWidget {
     return Align(
       alignment: AlignmentDirectional.centerEnd,
       child: TextButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
-          );
-        },
+        onPressed: () => Navigator.push(context, forgotPasswordRoute()),
         child: Text(context.tr('forgot_password')),
       ),
     );

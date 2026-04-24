@@ -12,6 +12,9 @@ abstract final class ApiEndpoints {
   static const String authRegister = 'auth/register';
   static const String authLogin = 'auth/login';
   static const String authForgotPassword = 'auth/forgot-password';
+  static const String authVerifyPhone = 'auth/verify-phone';
+  static const String authResendOtp = 'auth/resend-otp';
+  static const String authResetPassword = 'auth/reset-password';
   static const String authDeleteAccount = 'auth/delete-account';
   static const String me = 'me';
   // endregion
