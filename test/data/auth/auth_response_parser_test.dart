@@ -122,6 +122,74 @@ void main() {
     }
   });
 
+  group('parseForgotPassword', () {
+    test('success envelope produces AuthResponseSuccess', () {
+      final result = AuthResponseParser.parseForgotPassword(<String, Object?>{
+        'success': true,
+        'message': 'otp sent',
+      });
+
+      expect(result, isA<AuthResponseSuccess>());
+    });
+
+    test('failure with "required" message → missingRequiredFields', () {
+      final result = AuthResponseParser.parseForgotPassword(<String, Object?>{
+        'success': false,
+        'message': 'Phone is required',
+      });
+
+      expect(
+        (result as AuthResponseFailure).reason,
+        AuthFailureReason.missingRequiredFields,
+      );
+    });
+
+    test('failure with "invalid phone" message → invalidPhone', () {
+      final result = AuthResponseParser.parseForgotPassword(<String, Object?>{
+        'success': false,
+        'message': 'Invalid phone format',
+      });
+
+      expect(
+        (result as AuthResponseFailure).reason,
+        AuthFailureReason.invalidPhone,
+      );
+    });
+  });
+
+  group('parseResetPassword', () {
+    test('success envelope produces AuthResponseSuccess', () {
+      final result = AuthResponseParser.parseResetPassword(<String, Object?>{
+        'success': true,
+      });
+
+      expect(result, isA<AuthResponseSuccess>());
+    });
+
+    // Table-driven: every OTP-specific failure fragment maps to the
+    // right AuthFailureReason — the FR-007 character-exact guard.
+    for (final entry in <String, AuthFailureReason>{
+      'invalid otp': AuthFailureReason.invalidOtp,
+      'wrong code': AuthFailureReason.invalidOtp,
+      'incorrect code provided': AuthFailureReason.invalidOtp,
+      'expired otp': AuthFailureReason.expiredOtp,
+      'otp expired': AuthFailureReason.expiredOtp,
+      'code expired': AuthFailureReason.expiredOtp,
+      'password must be at least 6 chars': AuthFailureReason.weakPassword,
+      'required field missing': AuthFailureReason.missingRequiredFields,
+      'something unrelated': AuthFailureReason.unknownLogin,
+    }.entries) {
+      test('reset-password failure "${entry.key}" → ${entry.value}', () {
+        final result = AuthResponseParser.parseResetPassword(<String, Object?>{
+          'success': false,
+          'message': entry.key,
+        });
+
+        expect((result as AuthResponseFailure).reason, entry.value);
+      });
+    }
+  });
+
   group('fromDioException', () {
     RequestOptions opts() => RequestOptions(path: '/x');
 

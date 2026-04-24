@@ -19,6 +19,8 @@ enum AuthFailureReason {
   network,
   unknownLogin,
   unknownRegister,
+  invalidOtp,
+  expiredOtp,
 }
 
 /// Which operation produced a failure — used by the presentation-layer

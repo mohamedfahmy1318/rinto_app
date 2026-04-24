@@ -176,4 +176,176 @@ void main() {
       );
     });
   });
+
+  group('forgotPassword', () {
+    test('returns normally on success envelope', () async {
+      when(() => dataSource.forgotPassword(any())).thenAnswer(
+        (_) async => <String, Object?>{'success': true},
+      );
+
+      await repo.forgotPassword('+972501234567');
+      // No throw = success.
+    });
+
+    test('throws AuthException on server-side failure', () async {
+      when(() => dataSource.forgotPassword(any())).thenAnswer(
+        (_) async => <String, Object?>{
+          'success': false,
+          'message': 'Phone is required',
+        },
+      );
+
+      await expectLater(
+        repo.forgotPassword(''),
+        throwsA(
+          isA<AuthException>().having(
+            (e) => e.reason,
+            'reason',
+            AuthFailureReason.missingRequiredFields,
+          ),
+        ),
+      );
+    });
+
+    test('maps DioException to AuthException.network', () async {
+      when(() => dataSource.forgotPassword(any())).thenThrow(
+        DioException(
+          requestOptions: RequestOptions(path: '/x'),
+          type: DioExceptionType.connectionError,
+        ),
+      );
+
+      await expectLater(
+        repo.forgotPassword('+972501234567'),
+        throwsA(
+          isA<AuthException>().having(
+            (e) => e.reason,
+            'reason',
+            AuthFailureReason.network,
+          ),
+        ),
+      );
+    });
+  });
+
+  group('verifyOtp', () {
+    test('returns normally for a 6-digit code (no network)', () async {
+      await repo.verifyOtp('+972501234567', '123456');
+      verifyNever(() => dataSource.forgotPassword(any()));
+      verifyNever(() => dataSource.resendOtp(any()));
+    });
+
+    test('throws AuthException(invalidOtp) for a non-6-digit code', () async {
+      await expectLater(
+        repo.verifyOtp('+972501234567', '12345'),
+        throwsA(
+          isA<AuthException>().having(
+            (e) => e.reason,
+            'reason',
+            AuthFailureReason.invalidOtp,
+          ),
+        ),
+      );
+    });
+
+    test('throws AuthException(invalidOtp) for an empty code', () async {
+      await expectLater(
+        repo.verifyOtp('+972501234567', ''),
+        throwsA(
+          isA<AuthException>().having(
+            (e) => e.reason,
+            'reason',
+            AuthFailureReason.invalidOtp,
+          ),
+        ),
+      );
+    });
+  });
+
+  group('resendOtp', () {
+    test('sends {phone, type: password_reset} on success', () async {
+      when(() => dataSource.resendOtp(any())).thenAnswer(
+        (_) async => <String, Object?>{'success': true},
+      );
+
+      await repo.resendOtp('+972501234567');
+      verify(() => dataSource.resendOtp('+972501234567')).called(1);
+    });
+
+    test('maps DioException to AuthException.network', () async {
+      when(() => dataSource.resendOtp(any())).thenThrow(
+        DioException(
+          requestOptions: RequestOptions(path: '/x'),
+          type: DioExceptionType.receiveTimeout,
+        ),
+      );
+
+      await expectLater(
+        repo.resendOtp('+972501234567'),
+        throwsA(
+          isA<AuthException>().having(
+            (e) => e.reason,
+            'reason',
+            AuthFailureReason.network,
+          ),
+        ),
+      );
+    });
+  });
+
+  group('resetPassword', () {
+    test('returns normally on success envelope', () async {
+      when(() => dataSource.resetPassword(
+            phone: any(named: 'phone'),
+            code: any(named: 'code'),
+            newPassword: any(named: 'newPassword'),
+          )).thenAnswer((_) async => <String, Object?>{'success': true});
+
+      await repo.resetPassword('+972501234567', '123456', 'newSecret');
+    });
+
+    test('throws AuthException(invalidOtp) on server-side reject', () async {
+      when(() => dataSource.resetPassword(
+            phone: any(named: 'phone'),
+            code: any(named: 'code'),
+            newPassword: any(named: 'newPassword'),
+          )).thenAnswer((_) async => <String, Object?>{
+            'success': false,
+            'message': 'invalid otp',
+          });
+
+      await expectLater(
+        repo.resetPassword('+972501234567', '999999', 'newSecret'),
+        throwsA(
+          isA<AuthException>().having(
+            (e) => e.reason,
+            'reason',
+            AuthFailureReason.invalidOtp,
+          ),
+        ),
+      );
+    });
+
+    test('throws AuthException(expiredOtp) on expired code', () async {
+      when(() => dataSource.resetPassword(
+            phone: any(named: 'phone'),
+            code: any(named: 'code'),
+            newPassword: any(named: 'newPassword'),
+          )).thenAnswer((_) async => <String, Object?>{
+            'success': false,
+            'message': 'otp expired',
+          });
+
+      await expectLater(
+        repo.resetPassword('+972501234567', '111111', 'newSecret'),
+        throwsA(
+          isA<AuthException>().having(
+            (e) => e.reason,
+            'reason',
+            AuthFailureReason.expiredOtp,
+          ),
+        ),
+      );
+    });
+  });
 }
