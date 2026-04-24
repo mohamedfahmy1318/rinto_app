@@ -1,6 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../data/auth/auth_remote_datasource.dart';
+import '../../data/auth/auth_repository_impl.dart';
+import '../../data/locations/locations_remote_datasource.dart';
+import '../../data/locations/locations_repository_impl.dart';
+import '../../domain/auth/auth_repository.dart';
+import '../../domain/locations/locations_repository.dart';
 import '../network/api_client.dart';
 import '../storage/locale_reader.dart';
 import '../storage/token_reader.dart';
@@ -31,6 +37,27 @@ Future<void> setupLocator() async {
     () => ApiClient.create(
       tokenReader: getIt<TokenReader>(),
       localeReader: getIt<LocaleReader>(),
+    ),
+  );
+
+  // Auth feature (002-auth-login-register)
+  getIt.registerFactory<AuthRemoteDataSource>(
+    () => AuthRemoteDataSource(getIt<Dio>()),
+  );
+  getIt.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(
+      dataSource: getIt<AuthRemoteDataSource>(),
+      tokenReader: getIt<TokenReader>(),
+    ),
+  );
+
+  // Locations feature (used by register + future migrations)
+  getIt.registerFactory<LocationsRemoteDataSource>(
+    () => LocationsRemoteDataSource(getIt<Dio>()),
+  );
+  getIt.registerLazySingleton<LocationsRepository>(
+    () => LocationsRepositoryImpl(
+      dataSource: getIt<LocationsRemoteDataSource>(),
     ),
   );
 }

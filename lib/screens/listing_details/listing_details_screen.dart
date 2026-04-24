@@ -10,7 +10,7 @@ import '../../providers/listings_provider.dart';
 import '../../services/api_service.dart';
 import '../../services/chat_service.dart';
 import '../chat/chat_screen.dart';
-import '../auth/login_screen.dart';
+import '../../presentation/auth/auth_routes.dart';
 
 class ListingDetailsScreen extends StatefulWidget {
   final ListingModel listing;
@@ -807,10 +807,7 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
     final lang = Provider.of<AppProvider>(context, listen: false).languageCode;
 
     if (!auth.isLoggedIn) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
+      Navigator.push(context, loginRoute());
       return;
     }
 
@@ -970,10 +967,7 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
     final auth = Provider.of<AuthProvider>(context, listen: false);
 
     if (!auth.isLoggedIn) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
+      Navigator.push(context, loginRoute());
       return;
     }
 

@@ -1,11 +1,18 @@
 <!-- SPECKIT START -->
-Active feature: `001-core-network-di` (Core Networking & DI Foundation).
+Active feature: `002-auth-login-register` (Auth Clean-Arch Migration) — implemented, pending merge.
 
-- Plan: [specs/001-core-network-di/plan.md](specs/001-core-network-di/plan.md)
-- Spec: [specs/001-core-network-di/spec.md](specs/001-core-network-di/spec.md)
-- Research: [specs/001-core-network-di/research.md](specs/001-core-network-di/research.md)
-- Data model: [specs/001-core-network-di/data-model.md](specs/001-core-network-di/data-model.md)
-- Contracts: [specs/001-core-network-di/contracts/](specs/001-core-network-di/contracts/)
-- Quickstart: [specs/001-core-network-di/quickstart.md](specs/001-core-network-di/quickstart.md)
+- Plan: [specs/002-auth-login-register/plan.md](specs/002-auth-login-register/plan.md)
+- Spec: [specs/002-auth-login-register/spec.md](specs/002-auth-login-register/spec.md)
+- Research: [specs/002-auth-login-register/research.md](specs/002-auth-login-register/research.md)
+- Data model: [specs/002-auth-login-register/data-model.md](specs/002-auth-login-register/data-model.md)
+- Contracts: [specs/002-auth-login-register/contracts/](specs/002-auth-login-register/contracts/)
+- Quickstart: [specs/002-auth-login-register/quickstart.md](specs/002-auth-login-register/quickstart.md)
 - Constitution: [.specify/memory/constitution.md](.specify/memory/constitution.md)
+
+Previous: `001-core-network-di` (Core Networking & DI Foundation) — merged to main.
+
+Next candidates (to be decided):
+- Migrate the remaining legacy auth screens (`forgot_password`, `otp`, `reset_password`) onto the same Cubit + Clean-Arch layout used here.
+- Introduce a `SessionCubit` and migrate the ~15 downstream `AuthProvider` consumers so the legacy bridge (`hydrateFromSession` / `clearSession` + `BlocListener` shims on the pages) can be removed.
+- Deliver the typed `Failure` hierarchy follow-up scoped out of feature 001 (concrete `NetworkFailure` / `ServerFailure` mapping in the error interceptor).
 <!-- SPECKIT END -->
